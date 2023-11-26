@@ -5,15 +5,15 @@
 #ifndef NOWHERETORUN_RENDER_H
 #define NOWHERETORUN_RENDER_H
 
+#include <iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 class Render
 {
 public:
-    Render();
-    ~Render();
-
-private:
-    void init();
+    static void InitGLFW();
+    static void InitGLAD();
 };
 
 

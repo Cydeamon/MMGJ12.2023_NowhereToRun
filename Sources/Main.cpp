@@ -1,65 +1,51 @@
 #include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include "CMakeConfig.h"
-#include "Engine/Render.h"
 #include "Engine/Engine.h"
+
+#ifdef _WIN32
+    #define IS_WINDOWS 1
+    #include <windows.h>
+#elif __unix__
+    #define IS_LINUX 1
+    #include <gtk/gtk.h>
+#endif
 
 int main()
 {
-    // Initialize GLFW
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // Create window
-    std::string title = std::string(PROJECT_LABEL) + " v" + PROJECT_VER;
-    GLFWwindow* window = glfwCreateWindow(960, 540, title.c_str(), NULL, NULL);
-
-    if (window == NULL)
+    try
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
+        Cygine::Engine *engine = new Cygine::Engine();
+
+        while (!engine->ShouldClose())
+        {
+            engine->BeginFrameDraw();
+            engine->Update();
+            engine->EndFrameDraw();
+        }
+
+        delete engine;
+    }
+    catch (const std::exception &e)
+    {
+        #if(IS_WINDOWS)
+            MessageBoxA(NULL, e.what(), "Application Error", MB_OK | MB_ICONERROR);
+        #elif (IS_LINUX)
+            GtkWidget *dialog = gtk_message_dialog_new(
+                NULL,
+                GTK_DIALOG_MODAL,
+                GTK_MESSAGE_ERROR,
+                GTK_BUTTONS_OK,
+                e.what()
+            );
+
+            gtk_window_set_title(GTK_WINDOW(dialog), "Application Error");
+            gtk_dialog_run(GTK_DIALOG(dialog));
+            gtk_widget_destroy(dialog);
+        #endif
+
+        std::cerr << e.what() << '\n';
+        return 1;
     }
 
-    glfwMakeContextCurrent(window);
-
-    // Check GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    // Resize callback
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
-    {
-        glViewport(0, 0, width, height);
-    });
-
-    // Clear color
-    Cygine::Color color("#000F1C");
-
-    glClearColor(
-        color.GetNormalizedR(),
-        color.GetNormalizedG(),
-        color.GetNormalizedB(),
-        color.GetNormalizedA()
-    );
-
-    // Game loop
-    while (!glfwWindowShouldClose(window))
-    {
-        // Poll events
-        glfwPollEvents();
-        // Clear window
-        glClear(GL_COLOR_BUFFER_BIT);
-        // Swap buffers
-        glfwSwapBuffers(window);
-    }
-
-    glfwTerminate();
     return 0;
 }
