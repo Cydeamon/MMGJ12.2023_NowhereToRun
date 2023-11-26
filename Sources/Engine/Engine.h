@@ -5,11 +5,14 @@
 #ifndef NOWHERETORUN_ENGINE_H
 #define NOWHERETORUN_ENGINE_H
 
+#include "Color.h"
 
-class Engine
+namespace Cygine
 {
+    class Engine
+    {
 
-};
-
+    };
+}
 
 #endif //NOWHERETORUN_ENGINE_H

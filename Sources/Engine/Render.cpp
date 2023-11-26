@@ -3,3 +3,8 @@
 //
 
 #include "Render.h"
+
+void Render::init()
+{
+
+}

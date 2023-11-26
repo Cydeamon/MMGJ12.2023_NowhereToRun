@@ -8,7 +8,12 @@
 
 class Render
 {
+public:
+    Render();
+    ~Render();
 
+private:
+    void init();
 };
 
 
