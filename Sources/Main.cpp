@@ -14,8 +14,8 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window
-    const char* title = std::string(std::string(PROJECT_LABEL) + " v" + PROJECT_VER).c_str();
-    GLFWwindow* window = glfwCreateWindow(960, 540, title, NULL, NULL);
+    std::string title = std::string(PROJECT_LABEL) + " v" + PROJECT_VER;
+    GLFWwindow* window = glfwCreateWindow(960, 540, title.c_str(), NULL, NULL);
 
     if (window == NULL)
     {
