@@ -1,6 +1,5 @@
 #include <iostream>
-#include "CMakeConfig.h"
-#include "Engine/Engine.h"
+#include "Game/Game.h"
 
 #ifdef _WIN32
     #define IS_WINDOWS 1
@@ -14,43 +13,9 @@ int main()
 {
     try
     {
-        Cygine::Engine *engine = new Cygine::Engine();
-
-        while (!engine->ShouldClose())
-        {
-            engine->Update();
-
-            // Check arrow keys
-            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_LEFT))
-                std::cout << "Arrow Left just pressed" << std::endl;
-            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_RIGHT))
-                std::cout << "Arrow Right just pressed" << std::endl;
-            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_UP))
-                std::cout << "Arrow Up just pressed" << std::endl;
-            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_DOWN))
-                std::cout << "Arrow Down just pressed" << std::endl;
-
-            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_LEFT))
-                std::cout << "Arrow Left just released" << std::endl;
-            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_RIGHT))
-                std::cout << "Arrow Right just released" << std::endl;
-            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_UP))
-                std::cout << "Arrow Up just released" << std::endl;
-            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_DOWN))
-                std::cout << "Arrow Down just released" << std::endl;
-
-            if (Cygine::Input::IsJustPressed(Cygine::LEFT))
-            {
-                Cygine::Vector2 pos = Cygine::Input::GetMousePosition();
-                std::cout << "Left mouse click at " << pos.x << ", " << pos.y << std::endl;
-            }
-
-            // Draw
-            engine->BeginFrameDraw();
-            engine->EndFrameDraw();
-        }
-
-        delete engine;
+        Game* game = new Game();
+        game->Run();
+        delete game;
     }
     catch (const std::exception &e)
     {

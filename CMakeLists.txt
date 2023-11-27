@@ -33,6 +33,8 @@ add_executable(
     Sources/Engine/Input/Input.h
     Sources/Engine/Input/InputKeys.h
     Sources/Engine/Input/BtnState.h
+    Sources/Game/Game.cpp
+    Sources/Game/Game.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")
