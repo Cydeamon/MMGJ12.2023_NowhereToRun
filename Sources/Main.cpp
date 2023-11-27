@@ -18,8 +18,35 @@ int main()
 
         while (!engine->ShouldClose())
         {
-            engine->BeginFrameDraw();
             engine->Update();
+
+            // Check arrow keys
+            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_LEFT))
+                std::cout << "Arrow Left just pressed" << std::endl;
+            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_RIGHT))
+                std::cout << "Arrow Right just pressed" << std::endl;
+            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_UP))
+                std::cout << "Arrow Up just pressed" << std::endl;
+            if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_DOWN))
+                std::cout << "Arrow Down just pressed" << std::endl;
+
+            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_LEFT))
+                std::cout << "Arrow Left just released" << std::endl;
+            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_RIGHT))
+                std::cout << "Arrow Right just released" << std::endl;
+            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_UP))
+                std::cout << "Arrow Up just released" << std::endl;
+            if (Cygine::Input::IsJustReleased(Cygine::KeyboardKey::ARROW_DOWN))
+                std::cout << "Arrow Down just released" << std::endl;
+
+            if (Cygine::Input::IsJustPressed(Cygine::LEFT))
+            {
+                Cygine::Vector2 pos = Cygine::Input::GetMousePosition();
+                std::cout << "Left mouse click at " << pos.x << ", " << pos.y << std::endl;
+            }
+
+            // Draw
+            engine->BeginFrameDraw();
             engine->EndFrameDraw();
         }
 

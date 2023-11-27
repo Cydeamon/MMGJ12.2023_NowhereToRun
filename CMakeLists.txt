@@ -29,6 +29,10 @@ add_executable(
     Sources/Engine/Math/Vector2.h
     Sources/Engine/Color.cpp
     Sources/Engine/Color.h
+    Sources/Engine/Input/Input.cpp
+    Sources/Engine/Input/Input.h
+    Sources/Engine/Input/InputKeys.h
+    Sources/Engine/Input/BtnState.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")
@@ -39,10 +43,3 @@ target_include_directories(${PROJECT_NAME} PRIVATE Sources/Vendor/glad/include)
 # GLFW
 add_subdirectory(Sources/Vendor/glfw)
 target_link_libraries(${PROJECT_NAME} glfw)
-
-# Deploy command
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_BINARY_DIR}/../Deploy
-)
-

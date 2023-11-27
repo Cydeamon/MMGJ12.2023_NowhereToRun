@@ -11,6 +11,10 @@ Cygine::Engine::Engine()
     initWindow();
     Render::InitGLAD();
     glfwSetErrorCallback(glfwErrorCallback);
+    Input::Init();
+
+    // Init values
+    lastFrameTime = glfwGetTime();
 
     // Clear color
     Cygine::Color color("#000F1C");
@@ -23,6 +27,29 @@ Cygine::Engine::Engine()
     );
 
 }
+
+void Cygine::Engine::Update()
+{
+    Input::Update();
+    glfwPollEvents();
+    delta = glfwGetTime() - lastFrameTime;
+}
+
+bool Cygine::Engine::ShouldClose()
+{
+    bool shouldClose = glfwWindowShouldClose(window);
+    return shouldClose;
+}
+
+void Cygine::Engine::BeginFrameDraw()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+};
+
+void Cygine::Engine::EndFrameDraw()
+{
+    glfwSwapBuffers(window);
+};
 
 void Cygine::Engine::initWindow()
 {
@@ -40,19 +67,25 @@ void Cygine::Engine::initWindow()
 
 void Cygine::Engine::glfwErrorCallback(int error, const char *description)
 {
-    throw std::runtime_error(std::string("GLFW error (") + std::to_string(error) + "): " + description);
-}
+    if (error == GLFW_NO_ERROR)
+        return;
 
-bool Cygine::Engine::ShouldClose()
-{
-    bool shouldClose = glfwWindowShouldClose(window);
-    return shouldClose;
-}
+    bool fatal = true;
+    std::string message = std::string("GLFW error (") + std::to_string(error) + "): " + description + "\n";
 
-Cygine::Engine::~Engine()
-{
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    if (error == GLFW_INVALID_ENUM)
+        message += "Invalid enum\n";
+
+    if (error == GLFW_INVALID_VALUE)
+        message += "Invalid value\n";
+
+    if (error == GLFW_OUT_OF_MEMORY)
+        message += "Out of memory\n";
+
+    if (fatal)
+        throw std::runtime_error(message);
+    else
+        std::cerr << "WARNING: " << message << std::endl;
 }
 
 void Cygine::Engine::updateWindowResolutionCallback(GLFWwindow *window, int width, int height)
@@ -60,17 +93,14 @@ void Cygine::Engine::updateWindowResolutionCallback(GLFWwindow *window, int widt
     glViewport(0, 0, width, height);
 }
 
-void Cygine::Engine::Update()
+
+Cygine::Engine::~Engine()
 {
-    glfwPollEvents();
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
-void Cygine::Engine::BeginFrameDraw()
+double Cygine::Engine::GetDelta() const
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-};
-
-void Cygine::Engine::EndFrameDraw()
-{
-    glfwSwapBuffers(window);
-};
+    return delta;
+}

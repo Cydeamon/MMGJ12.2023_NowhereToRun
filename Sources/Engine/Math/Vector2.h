@@ -10,11 +10,11 @@ namespace Cygine
     class Vector2
     {
     public:
-        Vector2(int x = 0.0f, int y = 0.0f) : x(x), y(y) {};
-        Vector2() {};
+        Vector2(double x = 0.0f, double y = 0.0f) : x(x), y(y) {};
 
-        int x = 0;
-        int y = 0;
+        double x = 0;
+        double y = 0;
+    private:
     };
 
 } // Cygine
