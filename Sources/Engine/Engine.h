@@ -10,6 +10,7 @@
 #include "Color.h"
 #include "Input/Input.h"
 #include <iostream>
+#include <fstream>
 
 namespace Cygine
 {

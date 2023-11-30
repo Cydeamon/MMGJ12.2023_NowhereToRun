@@ -10,6 +10,8 @@ Cygine::Engine::Engine()
     Render::InitGLFW();
     initWindow();
     Render::InitGLAD();
+    Render::Init();
+
     glfwSetErrorCallback(glfwErrorCallback);
     Input::Init();
 
@@ -31,7 +33,6 @@ Cygine::Engine::Engine()
 void Cygine::Engine::Update()
 {
     Input::Update();
-    glfwPollEvents();
     delta = glfwGetTime() - lastFrameTime;
 }
 
@@ -44,11 +45,14 @@ bool Cygine::Engine::ShouldClose()
 void Cygine::Engine::BeginFrameDraw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
+
 };
 
 void Cygine::Engine::EndFrameDraw()
 {
     glfwSwapBuffers(window);
+    glfwPollEvents();
 };
 
 void Cygine::Engine::initWindow()

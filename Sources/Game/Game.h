@@ -7,6 +7,7 @@
 
 #include "../CMakeConfig.h"
 #include "../Engine/Engine.h"
+#include <fstream>
 
 class Game
 {
