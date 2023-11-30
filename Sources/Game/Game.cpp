@@ -43,7 +43,6 @@ void Game::Run()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-
     while (!engine->ShouldClose())
     {
         engine->Update();

@@ -17,6 +17,7 @@ public:
     static void InitGLFW();
     static void InitGLAD();
     static unsigned int LoadShader(unsigned int type, std::string filename);
+    static void CheckErrors();
 
     static unsigned int VBO, VAO;
 };

@@ -68,3 +68,46 @@ unsigned int Render::LoadShader(unsigned int type, std::string filename)
     return shader;
 }
 
+void Render::CheckErrors()
+{
+    std::string errorDescription;
+    GLenum error;
+
+    while ((error = glGetError()) != GL_NO_ERROR)
+    {
+        switch (error)
+        {
+            case GL_INVALID_ENUM:
+                errorDescription = "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
+                break;
+            case GL_INVALID_VALUE:
+                errorDescription = "GL_INVALID_VALUE: A numeric argument is out of range.";
+                break;
+            case GL_INVALID_OPERATION:
+                errorDescription = "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
+                break;
+            case GL_OUT_OF_MEMORY:
+                errorDescription = "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                errorDescription = "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
+                break;
+            case GL_CONTEXT_LOST:
+                errorDescription = "GL_CONTEXT_LOST: The OpenGL context was lost.";
+                break;
+            case GL_TABLE_TOO_LARGE:
+                errorDescription = "GL_TABLE_TOO_LARGE: The specified table exceeds the implementation's maximum supported table size.";
+                break;
+            case GL_INVALID_INDEX:
+                errorDescription = "GL_INVALID_INDEX: An invalid index was specified.";
+                break;
+            default:
+                errorDescription = "Unknown OpenGL error.";
+                break;
+        }
+    }
+
+    if (!errorDescription.empty())
+        throw std::runtime_error("Render error: " + errorDescription);
+}
+

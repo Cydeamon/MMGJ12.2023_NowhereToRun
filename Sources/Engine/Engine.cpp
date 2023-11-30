@@ -33,6 +33,7 @@ Cygine::Engine::Engine()
 void Cygine::Engine::Update()
 {
     Input::Update();
+    Render::CheckErrors();
     delta = glfwGetTime() - lastFrameTime;
 }
 
