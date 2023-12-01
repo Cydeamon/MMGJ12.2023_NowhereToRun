@@ -13,44 +13,34 @@ void Game::Run()
 {
     // Create vertices
     float vertices[] = {
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.0, 0.5, 0.0
+        0.5f, 0.5f, 0.0f,  // top right
+        0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f, 0.5f, 0.0f   // top left
+    };
+
+    unsigned int indices[] = {  // note that we start from 0!
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
     };
 
     glBindBuffer(GL_ARRAY_BUFFER, Render::VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     // Load shaders
-    unsigned int vertexShader = Render::LoadShader(GL_VERTEX_SHADER, "vert.glsl");
-    unsigned int fragmentShader = Render::LoadShader(GL_FRAGMENT_SHADER, "frag.glsl");
-
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    int success;
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-    if (!success)
-    {
-        char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        throw "Shader program linking failed\n" + std::string(infoLog);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Render::LoadShader(GL_VERTEX_SHADER, "vert.glsl");
+    Render::LoadShader(GL_FRAGMENT_SHADER, "frag.glsl");
 
     while (!engine->ShouldClose())
     {
         engine->Update();
         engine->BeginFrameDraw();
 
-        glUseProgram(shaderProgram);
-        glBindVertexArray(Render::VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::EBO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         engine->EndFrameDraw();
     }

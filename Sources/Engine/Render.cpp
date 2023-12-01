@@ -4,15 +4,18 @@
 
 #include "Render.h"
 
-unsigned int Render::VBO, Render::VAO;
+unsigned int Render::VBO, Render::VAO, Render::EBO;
+unsigned int Render::ShaderProgram;
 
 void Render::Init()
 {
     // Create and setup buffers
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    Render::CheckErrors();
 
     // Bind attributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
@@ -20,6 +23,14 @@ void Render::Init()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    Render::CheckErrors();
+
+    // Create shader program
+    ShaderProgram = glCreateProgram();
+
+    Render::CheckErrors();
 }
 
 void Render::InitGLFW()
@@ -38,6 +49,7 @@ void Render::InitGLAD()
 
 unsigned int Render::LoadShader(unsigned int type, std::string filename)
 {
+    // Create and compile shader
     unsigned int shader = glCreateShader(type);
     std::ifstream shaderFile("Shaders/" + filename);
     std::string shaderString((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
@@ -45,6 +57,7 @@ unsigned int Render::LoadShader(unsigned int type, std::string filename)
     glShaderSource(shader, 1, &shaderSource, NULL);
     glCompileShader(shader);
 
+    // Check for compilation errors
     int success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
@@ -65,6 +78,26 @@ unsigned int Render::LoadShader(unsigned int type, std::string filename)
         throw "Shader (type: " + shaderType + ", file: " + filename + ") compilation failed\n" + infoLog;
     }
 
+    // Attach shader
+    glAttachShader(ShaderProgram, shader);
+    glLinkProgram(ShaderProgram);
+    glUseProgram(ShaderProgram);
+
+    // Check for linking errors
+    glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &success);
+
+    if (!success)
+    {
+        char infoLog[512];
+        glGetProgramInfoLog(ShaderProgram, 512, NULL, infoLog);
+        throw "Shader program linking failed\n" + std::string(infoLog);
+    }
+
+    // Cleanup and check for errors
+    glDeleteShader(shader);
+    Render::CheckErrors();
+
+    // Return shader id
     return shader;
 }
 

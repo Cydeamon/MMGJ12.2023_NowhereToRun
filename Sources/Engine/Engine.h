@@ -34,7 +34,6 @@ namespace Cygine
         static void glfwErrorCallback(int error, const char *description);
         static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         double delta = 0;
-    private:
         double lastFrameTime;
     };
 }

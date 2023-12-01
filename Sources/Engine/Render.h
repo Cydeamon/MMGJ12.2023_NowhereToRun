@@ -19,7 +19,8 @@ public:
     static unsigned int LoadShader(unsigned int type, std::string filename);
     static void CheckErrors();
 
-    static unsigned int VBO, VAO;
+    static unsigned int VBO, VAO, EBO;
+    static unsigned int ShaderProgram;
 };
 
 

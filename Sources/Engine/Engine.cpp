@@ -28,13 +28,13 @@ Cygine::Engine::Engine()
         color.GetNormalizedA()
     );
 
+    Render::CheckErrors();
 }
 
 void Cygine::Engine::Update()
 {
     Input::Update();
     Render::CheckErrors();
-    delta = glfwGetTime() - lastFrameTime;
 }
 
 bool Cygine::Engine::ShouldClose()
@@ -45,16 +45,17 @@ bool Cygine::Engine::ShouldClose()
 
 void Cygine::Engine::BeginFrameDraw()
 {
+    lastFrameTime = glfwGetTime();
     glClear(GL_COLOR_BUFFER_BIT);
-
-
-};
+    glBindVertexArray(Render::VAO);
+}
 
 void Cygine::Engine::EndFrameDraw()
 {
     glfwSwapBuffers(window);
     glfwPollEvents();
-};
+    delta = glfwGetTime() - lastFrameTime;
+}
 
 void Cygine::Engine::initWindow()
 {
@@ -62,7 +63,7 @@ void Cygine::Engine::initWindow()
     window = glfwCreateWindow(960, 540, title.c_str(), NULL, NULL);
 
     if (window == NULL)
-        glfwTerminate();
+        throw std::runtime_error("Failed to create GLFW window");
 
     glfwMakeContextCurrent(window);
 
@@ -98,6 +99,10 @@ void Cygine::Engine::updateWindowResolutionCallback(GLFWwindow *window, int widt
     glViewport(0, 0, width, height);
 }
 
+double Cygine::Engine::GetDelta() const
+{
+    return delta;
+}
 
 Cygine::Engine::~Engine()
 {
@@ -105,7 +110,3 @@ Cygine::Engine::~Engine()
     glfwTerminate();
 }
 
-double Cygine::Engine::GetDelta() const
-{
-    return delta;
-}
