@@ -1,6 +1,2 @@
-*build*
-*.exe
-.idea
-Deploy/*
-lib*.a
-*.dll
+# Godot 4+ specific ignores
+.godot/
