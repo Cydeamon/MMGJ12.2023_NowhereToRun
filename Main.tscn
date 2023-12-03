@@ -1,7 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=3 format=3 uid="uid://bfhb7ix8xm15l"]
 
+[ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
 
 [node name="Node2D" type="Node2D"]
+script = ExtResource("1_ndi6g")
+
+[node name="Level" type="Node2D" parent="."]
+
+[node name="LevelBG" type="ColorRect" parent="Level"]
+offset_right = 384.0
+offset_bottom = 216.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+color = Color(0.0705882, 0.0392157, 0.0980392, 1)
 
 [node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
+
+[connection signal="Exit" from="Menu" to="." method="Exit"]
+[connection signal="StartGame" from="Menu" to="." method="StartGame"]

@@ -20,24 +20,28 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2_cs5pv")
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(192, 108)
 texture = ExtResource("1_bbifa")
-script = ExtResource("2_cs5pv")
 
 [node name="Title" type="Sprite2D" parent="."]
 position = Vector2(20, 13)
 texture = ExtResource("3_740qq")
 centered = false
 
-[node name="MenuOptions" type="Node2D" parent="."]
-position = Vector2(115, 88)
+[node name="MenuOptions" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 88.0
+offset_right = 115.0
+offset_bottom = 88.0
+alignment = 1
 
 [node name="StartGame" type="TextureButton" parent="MenuOptions"]
-offset_left = 1.0
-offset_right = 154.0
-offset_bottom = 19.0
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("3_8vejx")
 texture_pressed = ExtResource("4_i0jiw")
 texture_hover = ExtResource("4_i0jiw")
@@ -45,9 +49,8 @@ texture_focused = ExtResource("4_i0jiw")
 stretch_mode = 4
 
 [node name="HighScores" type="TextureButton" parent="MenuOptions"]
-offset_top = 19.0
-offset_right = 155.0
-offset_bottom = 39.0
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("7_vdowm")
 texture_pressed = ExtResource("6_v65yr")
 texture_hover = ExtResource("6_v65yr")
@@ -55,10 +58,8 @@ texture_focused = ExtResource("6_v65yr")
 stretch_mode = 4
 
 [node name="Credits" type="TextureButton" parent="MenuOptions"]
-offset_left = 28.0
-offset_top = 38.0
-offset_right = 130.0
-offset_bottom = 58.0
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("5_v3yjb")
 texture_pressed = ExtResource("8_syld0")
 texture_hover = ExtResource("8_syld0")
@@ -66,10 +67,8 @@ texture_focused = ExtResource("8_syld0")
 stretch_mode = 4
 
 [node name="Exit" type="TextureButton" parent="MenuOptions"]
-offset_left = 55.0
-offset_top = 59.0
-offset_right = 107.0
-offset_bottom = 79.0
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("6_lhi7o")
 texture_pressed = ExtResource("10_2jpcx")
 texture_hover = ExtResource("10_2jpcx")
@@ -77,6 +76,7 @@ texture_focused = ExtResource("10_2jpcx")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="."]
+layout_mode = 0
 offset_top = 179.0
 offset_right = 384.0
 offset_bottom = 214.0
