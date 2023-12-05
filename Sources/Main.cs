@@ -1,20 +1,28 @@
 using Godot;
-using System;
+
+namespace NowhereToRun.Sources;
 
 public partial class Main : Node2D
 {
     /***************************************************************************/
     /***************************** Game properties *****************************/
 
-    private bool isGameStarted = false;
-    private bool isGamePaused  = false;
-    private int  score         = 0;
+    private static bool isGameStarted = false;
+    private static bool isGamePaused = false;
+    private int score = 0;
 
     /***************************************************************************/
     /********************************** Nodes **********************************/
 
     public Control Menu;
-    public Node2D  Level;
+    public Node2D Level;
+    public Node2D HUD;
+    
+    /***************************************************************************/
+    /***************************** Global game data ****************************/
+    
+    public static bool IsGameStarted() => isGameStarted;
+    public static bool IsGamePaused() => isGamePaused;
 
     /***************************************************************************/
     /********************************* Methods *********************************/
@@ -25,6 +33,7 @@ public partial class Main : Node2D
         // Init nodes
         Menu = GetNode<Control>("Menu");
         Level = GetNode<Node2D>("Level");
+        HUD = GetNode<Node2D>("HUD");
         
         // If windowed by default - expand window until it large enough to fit the screen
         if (GetViewport().GetWindow().Mode == Window.ModeEnum.Windowed)
@@ -40,6 +49,16 @@ public partial class Main : Node2D
             
             GetViewport().GetWindow().MoveToCenter();
         }
+        
+        // Create image and assign to BloodDrawSprite
+        Image bloodDrawSpriteImage = Image.Create(
+            (int)GetViewportRect().Size.X, 
+            (int)GetViewportRect().Size.Y, 
+            false, 
+            Image.Format.Rgba8
+        );
+
+        GetNode<Sprite2D>("Level/BloodDrawSprite").Texture = ImageTexture.CreateFromImage(bloodDrawSpriteImage);
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -56,6 +75,7 @@ public partial class Main : Node2D
             isGamePaused = !isGamePaused;
             Menu.Visible = isGamePaused;
             Level.Visible = !isGamePaused;
+            HUD.Visible = !isGamePaused;
         }
     }
 
@@ -80,6 +100,7 @@ public partial class Main : Node2D
         isGameStarted = true;
         Menu.Hide();
         Level.Show();
+        HUD.Show();
     }
 
     private void HandleFullscreenToggle()

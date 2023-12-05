@@ -6,4 +6,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>NowhereToRun</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Sources\Characters\" />
+  </ItemGroup>
 </Project>
