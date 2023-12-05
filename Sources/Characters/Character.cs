@@ -14,7 +14,6 @@ public partial class Character : StaticBody2D
     protected CollisionShape2D bloodDropAreaBigCollision;
     protected CollisionShape2D bloodDropAreaSmallCollision;
     protected Timer bleedingTimer;
-    protected Area2D bloodDropSpawnRandomPoint;
     protected Sprite2D bloodDrawCanvas;
     protected Sprite2D deathSprite;
 
@@ -46,7 +45,6 @@ public partial class Character : StaticBody2D
         bleedingTimer = GetNode<Timer>("BleedingTimer");
         bloodDropAreaBigCollision = GetNode<CollisionShape2D>("BloodDropArea/BigShape");
         bloodDropAreaSmallCollision = GetNode<CollisionShape2D>("BloodDropArea/SmallShape");
-        bloodDropSpawnRandomPoint = GetNode<Area2D>("BloodDropSpawnRandomPoint");
         bloodDrawCanvas = GetNode<Sprite2D>("/root/Main/Level/BloodDrawSprite");
         deathSprite = GetNode<Sprite2D>("DeathSprite");
     }

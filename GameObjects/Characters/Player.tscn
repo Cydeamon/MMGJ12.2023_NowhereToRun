@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://sr3gwuqoyhhy"]
+[gd_scene load_steps=9 format=3 uid="uid://sr3gwuqoyhhy"]
 
 [ext_resource type="Script" path="res://Sources/Characters/Player.cs" id="1_p65lg"]
 [ext_resource type="SpriteFrames" uid="uid://bbv5rispw28h5" path="res://Assets/Characters/PlayerAnimations.tres" id="1_qox3d"]
@@ -19,14 +19,10 @@ radius = 5.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_3qqq4"]
 radius = 1.5
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ywros"]
-size = Vector2(1, 1)
-
 [node name="Player" type="StaticBody2D"]
 script = ExtResource("1_p65lg")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-visible = false
 position = Vector2(0, -8)
 sprite_frames = ExtResource("1_qox3d")
 animation = &"RunVertical"
@@ -68,11 +64,6 @@ debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 [node name="BleedingTimer" type="Timer" parent="."]
 wait_time = 10.0
 one_shot = true
-
-[node name="BloodDropSpawnRandomPoint" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="BloodDropSpawnRandomPoint"]
-shape = SubResource("RectangleShape2D_ywros")
 
 [node name="DeathSprite" type="Sprite2D" parent="."]
 visible = false

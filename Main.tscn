@@ -115,6 +115,8 @@ texture = SubResource("ImageTexture_qluo8")
 [node name="Player" parent="Level" instance=ExtResource("10_alkds")]
 position = Vector2(181, 68)
 
+[node name="Projectiles" type="Node" parent="Level"]
+
 [node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
 
 [connection signal="Exit" from="Menu" to="." method="Exit"]

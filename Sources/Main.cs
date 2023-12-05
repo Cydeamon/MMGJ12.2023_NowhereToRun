@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 namespace NowhereToRun.Sources;
@@ -17,10 +18,11 @@ public partial class Main : Node2D
     public Control Menu;
     public Node2D Level;
     public Node2D HUD;
-    
+    public Node ProjectilesContainer;
+
     /***************************************************************************/
     /***************************** Global game data ****************************/
-    
+
     public static bool IsGameStarted() => isGameStarted;
     public static bool IsGamePaused() => isGamePaused;
 
@@ -34,27 +36,29 @@ public partial class Main : Node2D
         Menu = GetNode<Control>("Menu");
         Level = GetNode<Node2D>("Level");
         HUD = GetNode<Node2D>("HUD");
-        
+        ProjectilesContainer = GetNode("Level/Projectiles");
+
+
         // If windowed by default - expand window until it large enough to fit the screen
         if (GetViewport().GetWindow().Mode == Window.ModeEnum.Windowed)
         {
             Vector2I windowSize = GetViewport().GetWindow().Size;
             Vector2I screenSize = DisplayServer.ScreenGetSize();
-            
-            while(windowSize.X < screenSize.X || windowSize.Y < screenSize.Y)
+
+            while (windowSize.X < screenSize.X || windowSize.Y < screenSize.Y)
             {
                 GetViewport().GetWindow().Size = windowSize;
                 windowSize += windowSize;
             }
-            
+
             GetViewport().GetWindow().MoveToCenter();
         }
-        
+
         // Create image and assign to BloodDrawSprite
         Image bloodDrawSpriteImage = Image.Create(
-            (int)GetViewportRect().Size.X, 
-            (int)GetViewportRect().Size.Y, 
-            false, 
+            (int)GetViewportRect().Size.X,
+            (int)GetViewportRect().Size.Y,
+            false,
             Image.Format.Rgba8
         );
 
@@ -66,6 +70,19 @@ public partial class Main : Node2D
     {
         HandlePauseToggle();
         HandleFullscreenToggle();
+        destroyOutOfBoundsProjectiles();
+    }
+
+    private void destroyOutOfBoundsProjectiles()
+    {
+        foreach (Node2D projectile in ProjectilesContainer.GetChildren())
+        {
+            bool xValid = projectile.GlobalPosition.X > 0 && projectile.GlobalPosition.X < GetViewportRect().Size.X;
+            bool yValid = projectile.GlobalPosition.Y > 0 && projectile.GlobalPosition.Y < GetViewportRect().Size.Y;
+
+            if (!xValid || !yValid)
+                projectile.QueueFree();
+        }
     }
 
     private void HandlePauseToggle()
@@ -96,7 +113,7 @@ public partial class Main : Node2D
             startButton.TextureFocused = continueButtonPressed;
             startButton.TextureHover = continueButtonPressed;
         }
-        
+
         isGameStarted = true;
         Menu.Hide();
         Level.Show();

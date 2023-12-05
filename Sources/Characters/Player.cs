@@ -6,26 +6,46 @@ namespace NowhereToRun.Sources.Characters;
 
 public partial class Player : Character
 {
+
+	/****************************************************************************/
+	/********************************* Nodes ***********************************/
+
+	private Node2D projectileSpawnPoint;
+	
 	/*****************************************************************************/
 	/******************************* Properties *********************************/
 	
 	
 	
-	/*****************************************************************************/
-	/******************************* Methods ***********************************/
-
-	public override void _Process(double delta)
-	{
-		base._Process(delta);
-		HandleMovement();
-		PickAnimation();
-	}
+	/****************************************************************************/
+	/******************************* Methods ************************************/
 
 	public override void _Ready()
 	{
 		base._Ready();
+		
+		// Nodes init
+		projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
+	}
+	
+	public override void _Process(double delta)
+	{
+		base._Process(delta);
+		HandleMovement();
+		HandleShooting();
+		PickAnimation();
 	}
 
+	private void HandleShooting()
+	{
+		if (Input.IsActionJustPressed("fire") && !isDead && IsGameStarted() && !IsGamePaused())
+		{
+			Projectile projectile = (Projectile) GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
+			projectile.Direction = Vector2.Down;
+			projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
+			GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
+		}
+	}
 
 	private void HandleMovement()
 	{
