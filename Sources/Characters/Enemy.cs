@@ -11,9 +11,8 @@ public partial class Enemy : Character
     [Flags]
     public enum EnemyType
     {
-        EMPTY = 1 << 1,
-        PISTOL = 1 << 2,
-        GRENADE = 1 << 3
+        PISTOL = 1 << 1,
+        GRENADE = 1 << 2
     }
 
     /****************************************************************************/
@@ -22,5 +21,19 @@ public partial class Enemy : Character
     [Export] public EnemyType Type = EnemyType.PISTOL;
 
     /****************************************************************************/
-    /******************************* Methods **********************************/
+    /******************************** Methods ***********************************/
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        pickAnimation();
+    }
+
+    protected override void pickAnimation()
+    {
+        string targetAnimation = "";
+        
+        if (targetAnimation != characterSprite.Animation)
+            characterSprite.Play(targetAnimation);
+    }
 }

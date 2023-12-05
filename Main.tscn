@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=17 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://vpqgp725c472" path="res://Assets/MessageLevelComplete.png" id="6_8cnjt"]
 [ext_resource type="FontFile" uid="uid://bgpphkgxfmgkg" path="res://Assets/Fonts/Arial.fnt" id="6_de1lf"]
 [ext_resource type="Texture2D" uid="uid://dmflu2nwam5li" path="res://Assets/MessageReady.png" id="7_6kqek"]
+[ext_resource type="PackedScene" uid="uid://cl83m3reh57jg" path="res://GameObjects/Characters/Enemy.tscn" id="9_5vmr3"]
 [ext_resource type="PackedScene" uid="uid://sr3gwuqoyhhy" path="res://GameObjects/Characters/Player.tscn" id="10_alkds"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w7n5a"]
@@ -75,7 +76,6 @@ position = Vector2(192, 108)
 texture = ExtResource("2_68ymt")
 
 [node name="LevelBoundaries" type="StaticBody2D" parent="Level"]
-visible = false
 position = Vector2(93, 52)
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="Level/LevelBoundaries"]
@@ -110,12 +110,56 @@ texture_filter = 1
 position = Vector2(192, 108)
 texture = SubResource("ImageTexture_qluo8")
 
-[node name="Enemies" type="Node" parent="Level"]
+[node name="Enemies" type="Node2D" parent="Level"]
+
+[node name="Enemy" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(124, 107)
+
+[node name="Enemy2" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(163, 106)
+Type = 0
+
+[node name="Enemy3" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(192, 117)
+
+[node name="Enemy4" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(215, 101)
+Type = 4
+
+[node name="Enemy6" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(229, 114)
+Type = 4
+
+[node name="Enemy5" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(145, 118)
+Type = 0
+
+[node name="Enemy7" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(156, 179)
+
+[node name="Enemy8" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(195, 178)
+Type = 0
+
+[node name="Enemy9" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(224, 189)
+
+[node name="Enemy10" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(247, 173)
+Type = 4
+
+[node name="Enemy11" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(261, 186)
+Type = 4
+
+[node name="Enemy12" parent="Level/Enemies" instance=ExtResource("9_5vmr3")]
+position = Vector2(177, 190)
+Type = 0
 
 [node name="Player" parent="Level" instance=ExtResource("10_alkds")]
 position = Vector2(181, 68)
 
-[node name="Projectiles" type="Node" parent="Level"]
+[node name="Projectiles" type="Node2D" parent="Level"]
 
 [node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
 

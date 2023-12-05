@@ -4,12 +4,13 @@ using static NowhereToRun.Sources.Main;
 
 namespace NowhereToRun.Sources.Characters;
 
-public partial class Character : StaticBody2D
+public abstract partial class Character : StaticBody2D
 {
     /***************************************************************************/
     /********************************* Nodes ***********************************/
 
     protected AnimatedSprite2D characterSprite;
+    protected Area2D hitArea;
     protected Area2D bloodDropArea;
     protected CollisionShape2D bloodDropAreaBigCollision;
     protected CollisionShape2D bloodDropAreaSmallCollision;
@@ -37,10 +38,13 @@ public partial class Character : StaticBody2D
     /******************************* Methods **********************************/
 
 
+    protected abstract void pickAnimation();
+
     public override void _Ready()
     {
         // Init nodes
         characterSprite = GetNode<AnimatedSprite2D>("Sprite");
+        hitArea = GetNode<Area2D>("HitArea");
         bloodDropArea = GetNode<Area2D>("BloodDropArea");
         bleedingTimer = GetNode<Timer>("BleedingTimer");
         bloodDropAreaBigCollision = GetNode<CollisionShape2D>("BloodDropArea/BigShape");
@@ -66,6 +70,26 @@ public partial class Character : StaticBody2D
         {
             if (!deathSprite.Visible)
                 showDeathSprite();
+
+            if (velocity != Vector2.Zero)
+            {
+                velocity = velocity.Lerp(Vector2.Zero, (float)(5 * delta));
+                KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);
+
+                if (collision != null)
+                    velocity = velocity.Bounce(collision.GetNormal());
+                
+                if (Math.Abs(velocity.X) < 0.5)
+                    velocity.X = 0;
+
+                if (Math.Abs(velocity.Y) < 0.5)
+                    velocity.Y = 0;
+                
+                if (velocity == Vector2.Zero)
+                    GetNode<CollisionShape2D>("Collision").Disabled = true;
+                
+                GD.Print(velocity);
+            }
         }
     }
 
@@ -73,7 +97,7 @@ public partial class Character : StaticBody2D
     {
         characterSprite.Hide();
         deathSprite.Show();
-        
+
         int framesNum = deathSprite.Texture.GetWidth() / 8;
         int randomFrame = random.Next(framesNum);
 
@@ -117,11 +141,39 @@ public partial class Character : StaticBody2D
                 );
 
                 drawPositionWithinRadius = drawPosition.Length() < radius;
+                drawPosition += bloodDropAreaBigCollision.GlobalPosition;
             }
 
+            // Draw blood drop
             Image img = bloodDrawCanvas.Texture.GetImage();
-            img.SetPixelv((Vector2I)(bloodDropAreaBigCollision.GlobalPosition + drawPosition), bloodColor);
-            bloodDrawCanvas.Texture = ImageTexture.CreateFromImage(img);
+
+            if (drawPosition.X >= 0 && drawPosition.X <= img.GetWidth() &&
+                drawPosition.Y >= 0 && drawPosition.Y <= img.GetHeight())
+            {
+                img.SetPixelv((Vector2I)drawPosition, bloodColor);
+                bloodDrawCanvas.Texture = ImageTexture.CreateFromImage(img);
+            }
         }
     }
+
+    public void BulletHit(Vector2 direction)
+    {
+        if (!isDead)
+        {
+            die();
+            velocity = direction * 100;
+        }
+    }
+
+    protected void die()
+    {
+        isDead = true;
+        startBleeding();
+        hitArea.Monitoring = false;
+    }
+
+    /***************************************************************************/
+    /*************************** Getters & Setters *****************************/
+
+    public bool IsDead() => isDead;
 }

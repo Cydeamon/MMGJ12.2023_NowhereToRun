@@ -33,7 +33,7 @@ public partial class Player : Character
 		base._Process(delta);
 		HandleMovement();
 		HandleShooting();
-		PickAnimation();
+		pickAnimation();
 	}
 
 	private void HandleShooting()
@@ -61,7 +61,7 @@ public partial class Player : Character
 		}
 	}
 
-	private void PickAnimation()
+	protected override void pickAnimation()
 	{
 		string targetAnimation = "";
 		
