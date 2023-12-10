@@ -26,6 +26,11 @@ namespace Cygine
         void Update();
 
         double GetDelta() const;
+        int GetFPS() const { return fps; }
+        int GetWindowWidth() const;
+        int GetWindowHeight() const;
+        float GetWindowAspectRatio() const { return (float) GetWindowWidth() / (float) GetWindowHeight(); }
+        Vector2 GetWindowResolution() const { return Vector2(GetWindowWidth(), GetWindowHeight()); }
 
     private:
         GLFWwindow *window = nullptr;
@@ -34,6 +39,7 @@ namespace Cygine
         static void glfwErrorCallback(int error, const char *description);
         static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         double delta = 0;
+        int fps = 0;
         double lastFrameTime;
     };
 }

@@ -4,6 +4,8 @@
 
 #include "ShaderProgram.h"
 #include "../OpenGL.h"
+#include "glm/gtc/type_ptr.hpp"
+
 using namespace OpenGL;
 
 ShaderProgram::ShaderProgram(std::string name)
@@ -83,7 +85,13 @@ void ShaderProgram::SetUniformValue(std::string name, ShaderVec4 value)
 
     int expectedType = GL_FLOAT_VEC4;
     if (getUniformType(name) != expectedType)
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). Invalid uniform type: " + name + ". Expected: " + getTypeName(expectedType) + ", but got: " + getTypeName(getUniformType(name)));
+        throw std::runtime_error(
+            "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
+            name +
+            ". Expected: " +
+            getTypeName(expectedType) +
+            ", but got: " +
+            getTypeName(getUniformType(name)));
 
     glUniform4f(uniforms[name], value.GetX(), value.GetY(), value.GetZ(), value.GetW());
 }
@@ -96,7 +104,13 @@ void ShaderProgram::SetUniformValue(std::string name, float value)
 
     int expectedType = GL_FLOAT;
     if (getUniformType(name) != expectedType)
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). Invalid uniform type: " + name + ". Expected: " + getTypeName(expectedType) + ", but got: " + getTypeName(getUniformType(name)));
+        throw std::runtime_error(
+            "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
+            name +
+            ". Expected: " +
+            getTypeName(expectedType) +
+            ", but got: " +
+            getTypeName(getUniformType(name)));
 
     // Set value
     glUniform1f(uniforms[name], value);
@@ -111,7 +125,7 @@ void OpenGL::ShaderProgram::SetUniformValue(std::string name, int value)
     int expectedTypes[] = {GL_INT, GL_SAMPLER_2D};
     bool found = false;
 
-    for (auto type : expectedTypes)
+    for (auto type: expectedTypes)
     {
         if (getUniformType(name) == type)
         {
@@ -120,7 +134,7 @@ void OpenGL::ShaderProgram::SetUniformValue(std::string name, int value)
             break;
         }
     }
-    
+
     if (!found)
     {
         std::string expectedTypes;
@@ -140,6 +154,27 @@ void OpenGL::ShaderProgram::SetUniformValue(std::string name, int value)
 
     // Set value
     glUniform1i(uniforms[name], value);
+}
+
+void ShaderProgram::SetUniformValue(std::string name, glm::mat4 value)
+{
+    // Check errors
+    if (uniforms.find(name) == uniforms.end())
+        throw std::runtime_error("ShaderProgram::SetUniformValue(). No such uniform or not active: " + name);
+
+
+    int expectedType = GL_FLOAT_MAT4;
+    if (getUniformType(name) != expectedType)
+        throw std::runtime_error(
+            "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
+            name +
+            ". Expected: " +
+            getTypeName(expectedType) +
+            ", but got: " +
+            getTypeName(getUniformType(name)));
+
+
+    glUniformMatrix4fv(uniforms[name], 1, GL_FALSE, glm::value_ptr(value));
 }
 
 GLenum ShaderProgram::getUniformType(const std::string &name)
@@ -250,3 +285,4 @@ std::string ShaderProgram::getTypeName(GLenum type)
         default: return "Unknown";
     }
 }
+

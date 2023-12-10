@@ -48,7 +48,7 @@ bool Cygine::Engine::ShouldClose()
 void Cygine::Engine::BeginFrameDraw()
 {
     lastFrameTime = glfwGetTime();
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindVertexArray(OpenGL::API::VAO);
 }
 
@@ -57,17 +57,23 @@ void Cygine::Engine::EndFrameDraw()
     glfwSwapBuffers(window);
     glfwPollEvents();
     delta = glfwGetTime() - lastFrameTime;
+    fps = (int) (1.0 / delta);
 }
 
 void Cygine::Engine::initWindow()
 {
     std::string title = std::string(PROJECT_LABEL) + " v" + PROJECT_VER;
-    window = glfwCreateWindow(960, 540, title.c_str(), NULL, NULL);
+    window = glfwCreateWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, title.c_str(), NULL, NULL);
 
     if (window == NULL)
         throw std::runtime_error("Engine::initWindow(). Failed to create GLFW window");
 
     glfwMakeContextCurrent(window);
+    
+    // Make window centered
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    glfwSetWindowPos(window, (mode->width - DEFAULT_WINDOW_WIDTH) / 2, (mode->height - DEFAULT_WINDOW_HEIGHT) / 2);
 
     // Resize callback
     glfwSetFramebufferSizeCallback(window, updateWindowResolutionCallback);
@@ -110,5 +116,20 @@ Cygine::Engine::~Engine()
 {
     glfwDestroyWindow(window);
     OpenGL::API::Destroy();
+}
+
+int Cygine::Engine::GetWindowWidth() const
+{
+    int width;
+    glfwGetWindowSize(window, &width, nullptr);
+    return width;
+}
+
+
+int Cygine::Engine::GetWindowHeight() const
+{
+    int height;
+    glfwGetWindowSize(window, nullptr, &height);
+    return height;
 }
 

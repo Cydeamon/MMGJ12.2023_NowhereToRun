@@ -11,6 +11,13 @@ namespace OpenGL
     {
         try 
         {
+            // Check if file exists
+            std::ifstream file(path);
+            if (!file.good())
+                throw std::runtime_error("File not found: " + std::string(path));
+
+
+            // Load image
             unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
 
             if (!data)

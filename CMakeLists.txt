@@ -21,7 +21,6 @@ add_executable(
     Sources/Engine/Engine.cpp
     Sources/Engine/Engine.h
     Sources/Engine/Math/Vector2.cpp
-    Sources/Engine/Math/Math.h
     Sources/Engine/Color.cpp
     Sources/Engine/Color.h
     Sources/Engine/Input/Input.cpp
@@ -36,6 +35,8 @@ add_executable(
     Sources/Engine/GraphicLibraries/Shaders/ShaderVec4.cpp
     Sources/Engine/GraphicLibraries/Texture.cpp
     Sources/Engine/GraphicLibraries/Texture.h
+    Sources/Engine/Objects/GameObject.cpp
+    Sources/Engine/Objects/GameObject.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")
@@ -43,7 +44,9 @@ configure_file("${PROJECT_SOURCE_DIR}/Sources/CMakeConfig.h.in" "${PROJECT_SOURC
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE Sources/Vendor/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE Sources/Vendor/glm)
 
 # GLFW
 add_subdirectory(Sources/Vendor/glfw)
+add_subdirectory(Sources/Vendor/glm)
 target_link_libraries(${PROJECT_NAME} glfw)
