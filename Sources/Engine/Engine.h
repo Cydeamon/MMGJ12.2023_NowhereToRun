@@ -32,15 +32,23 @@ namespace Cygine
         float GetWindowAspectRatio() const { return (float) GetWindowWidth() / (float) GetWindowHeight(); }
         Vector2 GetWindowResolution() const { return Vector2(GetWindowWidth(), GetWindowHeight()); }
 
+        void ForceWindowAspectRatio(float aspect);
+        void ToggleFullscreen();
+        void SetInnerResolution(int x, int y);
+        void SetWindowCentered();
+
     private:
         GLFWwindow *window = nullptr;
-
-        void initWindow();
-        static void glfwErrorCallback(int error, const char *description);
-        static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         double delta = 0;
         int fps = 0;
         double lastFrameTime;
+        double forcedAspectRatio = 0;
+
+        void initWindow();
+        static void glfwErrorCallback(int error, const char *description);
+        void updateForcedAspectRatio();
+        bool IsFullscreen();
+
     };
 }
 

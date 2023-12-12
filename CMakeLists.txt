@@ -37,6 +37,8 @@ add_executable(
     Sources/Engine/GraphicLibraries/Texture.h
     Sources/Engine/Objects/GameObject.cpp
     Sources/Engine/Objects/GameObject.h
+    Sources/Engine/Sprite.cpp
+    Sources/Engine/Sprite.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")

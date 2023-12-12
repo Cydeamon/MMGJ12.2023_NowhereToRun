@@ -10,12 +10,14 @@
 #include <fstream>
 #include <vector>
 #include <cmath>
+#include <glm/glm.hpp>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Shaders/ShaderProgram.h"
 #include "Texture.h"
 
 #include "../../Vendor/stb/stb_image.h"
+#include "../Sprite.h"
 
 namespace OpenGL
 {
@@ -31,13 +33,26 @@ namespace OpenGL
         static void UseShaderProgram(std::string name);
         static void CreateShaderProgram(std::string name);
         static ShaderProgram* GetCurrentShaderProgram();
+        static void DrawSprite(Sprite *sprite);
+        static void UpdateInnerResolutionScale();
+        static void SetInnerResolution(int x, int y);
+        static void Update();
 
-        static unsigned int VBO, VAO, EBO;
-
-
+        static void BeginFrameDraw();
+        static void EndFrameDraw();
     private:
         static std::vector<ShaderProgram *> shaderPrograms;
         static ShaderProgram *currentShaderProgram;
+        static float spriteVertices[];
+        static unsigned int spriteVBO, spriteVAO;
+        static unsigned int frameBuffer;
+        static unsigned int frameTexture;
+        static Cygine::Vector2 innerResolutionScale;
+        static Cygine::Vector2 innerResolution;
+        static bool usingCustomInnerResolution;
+
+        static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
+        static void drawFrameBuffer();
     };
 }
 
