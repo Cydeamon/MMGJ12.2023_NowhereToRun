@@ -41,6 +41,17 @@ namespace OpenGL
 
         static void BeginFrameDraw();
         static void EndFrameDraw();
+        static void SetClearColor(Cygine::Color color);
+        static double GetTime();
+        static void SetWindowResolution(int width, int height);
+        static bool IsFullscreen();
+        static void SetWindowed();
+        static void SetFullscreen();
+        static void InitWindow(std::string title, int width, int height);
+
+        static void SetWindowTitle(std::string title);
+        static bool IsShouldClose();
+        static void SetWindowCentered();
     private:
         static std::vector<ShaderProgram *> shaderPrograms;
         static ShaderProgram *currentShaderProgram;
@@ -52,11 +63,13 @@ namespace OpenGL
         static unsigned int frameTexture;
         static Cygine::Vector2 innerResolutionScale;
         static Cygine::Vector2 innerResolution;
+        static GLFWwindow *window;
 
         static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         static void drawFrameBuffer();
         static void reinitFrameBuffer();
         static Cygine::Vector2 GetWindowResolution();
+        static void glfwErrorCallback(int error, const char *description);
     };
 }
 

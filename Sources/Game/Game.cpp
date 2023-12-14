@@ -20,7 +20,8 @@ void Game::Run()
         throw std::runtime_error("Engine not initialized");
 
     engine->SetInnerResolution(384, 216);
-     engine->ForceWindowAspectRatio(16.0 / 9.0);
+    engine->SetWindowResolution(1280, 720);
+    engine->ForceWindowAspectRatio(16.0 / 9.0);
 
     // Load shaders
     Sprite sprite("Assets/Menu.png");

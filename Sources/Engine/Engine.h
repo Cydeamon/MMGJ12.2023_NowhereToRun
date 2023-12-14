@@ -36,19 +36,21 @@ namespace Cygine
         void ToggleFullscreen();
         void SetInnerResolution(int x, int y);
         void SetWindowCentered();
+        bool IsFullscreen();
 
+        void SetWindowResolution(int width, int height);
     private:
-        GLFWwindow *window = nullptr;
         double delta = 0;
         int fps = 0;
         double lastFrameTime;
         double forcedAspectRatio = 0;
+        bool debug = true;
 
         void initWindow();
         static void glfwErrorCallback(int error, const char *description);
         void updateForcedAspectRatio();
-        bool IsFullscreen();
 
+        Vector2 windowResolution = Vector2(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
     };
 }
 

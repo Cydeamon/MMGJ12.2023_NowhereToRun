@@ -42,6 +42,8 @@ add_executable(
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")
+
+file(REMOVE "${PROJECT_SOURCE_DIR}/Sources/CMakeConfig.h")
 configure_file("${PROJECT_SOURCE_DIR}/Sources/CMakeConfig.h.in" "${PROJECT_SOURCE_DIR}/Sources/CMakeConfig.h")
 
 # Include directories

@@ -11,6 +11,8 @@ using namespace OpenGL;
 unsigned int API::spriteVBO = 0, API::spriteVAO = 0;
 unsigned int API::frameBufferVBO = 0, API::frameBufferVAO = 0, API::frameBufferRBO = 0;
 ShaderProgram *API::currentShaderProgram = nullptr;
+GLFWwindow *API::window = nullptr;
+
 std::vector<ShaderProgram *> API::shaderPrograms;
 Cygine::Vector2 API::innerResolutionScale;
 Cygine::Vector2 API::innerResolution;
@@ -41,6 +43,8 @@ float API::frameBufferRect[] = {
 
 void API::Init()
 {
+    glfwSwapInterval(0);
+    glfwSetErrorCallback(glfwErrorCallback);
     glEnable(GL_DEPTH_TEST);
     glfwSetFramebufferSizeCallback(glfwGetCurrentContext(), updateWindowResolutionCallback);
 
@@ -291,14 +295,14 @@ ShaderProgram *API::GetCurrentShaderProgram()
 
 void API::Destroy()
 {
+    glfwTerminate();
+
     for (ShaderProgram *shaderProgram: shaderPrograms)
-    {
         delete shaderProgram;
-    }
 
     glDeleteBuffers(1, &spriteVAO);
     glDeleteBuffers(1, &spriteVBO);
-    glfwTerminate();
+    glfwDestroyWindow(window);
 }
 
 void API::DrawSprite(Sprite *sprite)
@@ -387,4 +391,101 @@ Cygine::Vector2 API::GetWindowResolution()
         glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
     return Cygine::Vector2(width, height);
+}
+
+
+void API::glfwErrorCallback(int error, const char *description)
+{
+    if (error == GLFW_NO_ERROR)
+        return;
+
+    bool fatal = true;
+    std::string message = std::string("GLFW error (") + std::to_string(error) + "): " + description + "\n";
+
+    if (error == GLFW_INVALID_ENUM)
+        message += "Invalid enum\n";
+
+    if (error == GLFW_INVALID_VALUE)
+        message += "Invalid value\n";
+
+    if (error == GLFW_OUT_OF_MEMORY)
+        message += "Out of memory\n";
+
+    if (fatal)
+        throw std::runtime_error("glfwErrorCallback(). " + message);
+    else
+        std::cerr << "WARNING: " << message << std::endl;
+}
+
+void API::SetClearColor(Cygine::Color color)
+{
+    glClearColor(
+        color.GetNormalizedR(),
+        color.GetNormalizedG(),
+        color.GetNormalizedB(),
+        color.GetNormalizedA()
+    );
+}
+
+double API::GetTime()
+{
+    return glfwGetTime();
+}
+
+void API::SetWindowResolution(int width, int height)
+{
+    glfwSetWindowSize(glfwGetCurrentContext(), width, height);
+}
+
+bool API::IsFullscreen()
+{
+    return glfwGetWindowMonitor(glfwGetCurrentContext()) != nullptr;
+}
+
+void API::SetWindowed()
+{
+    glfwSetWindowMonitor(glfwGetCurrentContext(), nullptr, 0, 0, GetWindowResolution().x, GetWindowResolution().y, GLFW_DONT_CARE);
+}
+
+void API::SetFullscreen()
+{
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    glfwSetWindowMonitor(glfwGetCurrentContext(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+}
+
+void API::InitWindow(std::string title, int width, int height)
+{
+    window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+
+    if (window == NULL)
+        throw std::runtime_error("Engine::initWindow(). Failed to create GLFW window");
+
+    glfwMakeContextCurrent(window);
+
+    // Make window centered
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    glfwSetWindowPos(window, (mode->width - width) / 2, (mode->height - height) / 2);
+}
+
+void API::SetWindowTitle(std::string title)
+{
+    glfwSetWindowTitle(window, title.c_str());
+}
+
+bool API::IsShouldClose()
+{
+    return glfwWindowShouldClose(window);
+}
+
+void API::SetWindowCentered()
+{
+    if (!IsFullscreen())
+    {
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+
+        glfwSetWindowPos(window, (mode->width - GetWindowResolution().x) / 2, (mode->height - GetWindowResolution().y) / 2);
+    }
 }

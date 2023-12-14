@@ -4,29 +4,21 @@
 
 #include "Engine.h"
 #include "GraphicLibraries/OpenGL.h"
-
 Cygine::Engine::Engine()
 {
+    std::string title = std::string(PROJECT_LABEL) + " v" + PROJECT_VER;
+
     OpenGL::API::InitGLFW();
-    glfwSetErrorCallback(glfwErrorCallback);
-    initWindow();
+    OpenGL::API::InitWindow(title, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
     OpenGL::API::InitGLAD();
     OpenGL::API::Init();
     Input::Init();
 
     // Init values
-    lastFrameTime = glfwGetTime();
+    lastFrameTime = OpenGL::API::GetTime();
 
     // Clear color
-    Cygine::Color color("#000F1C");
-
-    glClearColor(
-        color.GetNormalizedR(),
-        color.GetNormalizedG(),
-        color.GetNormalizedB(),
-        color.GetNormalizedA()
-    );
-
+    OpenGL::API::SetClearColor(Cygine::Color("#000F1C"));
     OpenGL::API::CheckErrors();
 }
 
@@ -35,17 +27,21 @@ void Cygine::Engine::Update()
     updateForcedAspectRatio();
     Input::Update();
     OpenGL::API::CheckErrors();
+
+    if (debug)
+    {
+        OpenGL::API::SetWindowTitle(std::string(PROJECT_LABEL) + " v" + PROJECT_VER + " - FPS: " + std::to_string(fps));
+    }
 }
 
 bool Cygine::Engine::ShouldClose()
 {
-    bool shouldClose = glfwWindowShouldClose(window);
-    return shouldClose;
+    return OpenGL::API::IsShouldClose();
 }
 
 void Cygine::Engine::BeginFrameDraw()
 {
-    lastFrameTime = glfwGetTime();
+    lastFrameTime = OpenGL::API::GetTime();
     OpenGL::API::BeginFrameDraw();
 }
 
@@ -57,45 +53,6 @@ void Cygine::Engine::EndFrameDraw()
     OpenGL::API::CheckErrors();
 }
 
-void Cygine::Engine::initWindow()
-{
-    std::string title = std::string(PROJECT_LABEL) + " v" + PROJECT_VER;
-    window = glfwCreateWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, title.c_str(), NULL, NULL);
-
-    if (window == NULL)
-        throw std::runtime_error("Engine::initWindow(). Failed to create GLFW window");
-
-    glfwMakeContextCurrent(window);
-    
-    // Make window centered
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-    glfwSetWindowPos(window, (mode->width - DEFAULT_WINDOW_WIDTH) / 2, (mode->height - DEFAULT_WINDOW_HEIGHT) / 2);
-}
-
-void Cygine::Engine::glfwErrorCallback(int error, const char *description)
-{
-    if (error == GLFW_NO_ERROR)
-        return;
-
-    bool fatal = true;
-    std::string message = std::string("GLFW error (") + std::to_string(error) + "): " + description + "\n";
-
-    if (error == GLFW_INVALID_ENUM)
-        message += "Invalid enum\n";
-
-    if (error == GLFW_INVALID_VALUE)
-        message += "Invalid value\n";
-
-    if (error == GLFW_OUT_OF_MEMORY)
-        message += "Out of memory\n";
-
-    if (fatal)
-        throw std::runtime_error("glfwErrorCallback(). " + message);
-    else
-        std::cerr << "WARNING: " << message << std::endl;
-}
-
 double Cygine::Engine::GetDelta() const
 {
     return delta;
@@ -103,23 +60,17 @@ double Cygine::Engine::GetDelta() const
 
 Cygine::Engine::~Engine()
 {
-    glfwDestroyWindow(window);
     OpenGL::API::Destroy();
 }
 
 int Cygine::Engine::GetWindowWidth() const
 {
-    int width;
-    glfwGetWindowSize(window, &width, nullptr);
-    return width;
+    return windowResolution.x;
 }
-
 
 int Cygine::Engine::GetWindowHeight() const
 {
-    int height;
-    glfwGetWindowSize(window, nullptr, &height);
-    return height;
+    return windowResolution.y;
 }
 
 void Cygine::Engine::ForceWindowAspectRatio(float aspect)
@@ -131,14 +82,13 @@ void Cygine::Engine::updateForcedAspectRatio()
 {
     if (forcedAspectRatio != 0 && !IsFullscreen())
     {
-        Vector2 resolution = GetWindowResolution();
-        float aspect = resolution.x / resolution.y;
+        float aspect = windowResolution.x / windowResolution.y;
 
         if (forcedAspectRatio - aspect > 0.01 || forcedAspectRatio - aspect < -0.01)
         {
-            resolution.x = resolution.y * forcedAspectRatio;
-            resolution.y = resolution.x / forcedAspectRatio;
-            glfwSetWindowSize(window, (int) resolution.x, (int) resolution.y);
+            windowResolution.x *= forcedAspectRatio;
+            windowResolution.y /= forcedAspectRatio;
+            OpenGL::API::SetWindowResolution(windowResolution.x, windowResolution.y);
             SetWindowCentered();
         }
     }
@@ -146,36 +96,37 @@ void Cygine::Engine::updateForcedAspectRatio()
 
 void Cygine::Engine::ToggleFullscreen()
 {
-    if (glfwGetWindowMonitor(window) == nullptr)
+    if (OpenGL::API::IsFullscreen())
     {
-        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-        glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        OpenGL::API::SetWindowed();
+        OpenGL::API::SetWindowResolution(windowResolution.x, windowResolution.y);
+        SetWindowCentered();
     }
     else
     {
-        glfwSetWindowMonitor(window, nullptr, 0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, 0);
-        updateForcedAspectRatio();
-        SetWindowCentered();
+        OpenGL::API::SetFullscreen();
     }
 }
 
 void Cygine::Engine::SetWindowCentered()
 {
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-
-    Vector2 resolution = GetWindowResolution();
-    glfwSetWindowPos(window, (mode->width - resolution.x) / 2, (mode->height - resolution.y) / 2);
+    OpenGL::API::SetWindowCentered();
 }
 
 bool Cygine::Engine::IsFullscreen()
 {
-    return glfwGetWindowMonitor(window) != nullptr;
+    return OpenGL::API::IsFullscreen();
 }
 
 void Cygine::Engine::SetInnerResolution(int x, int y)
 {
     OpenGL::API::SetInnerResolution(x, y);
+}
+
+void Cygine::Engine::SetWindowResolution(int width, int height)
+{
+    windowResolution = Vector2(width, height);
+    OpenGL::API::SetWindowResolution(width, height);
+    SetWindowCentered();
 }
 
