@@ -14,9 +14,6 @@ Cygine::Engine::Engine()
     OpenGL::API::Init();
     Input::Init();
 
-    // Set images to be flipped correctly on load
-    stbi_set_flip_vertically_on_load(true);
-
     // Init values
     lastFrameTime = glfwGetTime();
 
@@ -50,14 +47,11 @@ void Cygine::Engine::BeginFrameDraw()
 {
     lastFrameTime = glfwGetTime();
     OpenGL::API::BeginFrameDraw();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Cygine::Engine::EndFrameDraw()
 {
     OpenGL::API::EndFrameDraw();
-    glfwSwapBuffers(window);
-    glfwPollEvents();
     delta = glfwGetTime() - lastFrameTime;
     fps = (int) (1.0 / delta);
     OpenGL::API::CheckErrors();
@@ -146,7 +140,6 @@ void Cygine::Engine::updateForcedAspectRatio()
             resolution.y = resolution.x / forcedAspectRatio;
             glfwSetWindowSize(window, (int) resolution.x, (int) resolution.y);
             SetWindowCentered();
-            OpenGL::API::UpdateInnerResolutionScale();
         }
     }
 }
@@ -165,8 +158,6 @@ void Cygine::Engine::ToggleFullscreen()
         updateForcedAspectRatio();
         SetWindowCentered();
     }
-
-    OpenGL::API::UpdateInnerResolutionScale();
 }
 
 void Cygine::Engine::SetWindowCentered()

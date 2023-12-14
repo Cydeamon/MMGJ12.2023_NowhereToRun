@@ -10,9 +10,11 @@
 
 Sprite::Sprite(const char* path, Cygine::Color color)
 {
+    glActiveTexture(GL_TEXTURE1);
     texture = new OpenGL::Texture(path);
     size = Cygine::Vector2(texture->GetWidth(), texture->GetHeight());
     this->color = color;
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void Sprite::Update()

@@ -1,6 +1,7 @@
 *build*
 *.exe
-.idea
+.idea/
+.vscode/
 Deploy/*
 lib*.a
 *.dll

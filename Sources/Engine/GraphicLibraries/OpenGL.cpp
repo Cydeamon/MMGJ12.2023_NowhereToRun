@@ -8,14 +8,14 @@
 
 using namespace OpenGL;
 
-unsigned int API::spriteVBO, API::spriteVAO;
+unsigned int API::spriteVBO = 0, API::spriteVAO = 0;
+unsigned int API::frameBufferVBO = 0, API::frameBufferVAO = 0, API::frameBufferRBO = 0;
 ShaderProgram *API::currentShaderProgram = nullptr;
 std::vector<ShaderProgram *> API::shaderPrograms;
 Cygine::Vector2 API::innerResolutionScale;
 Cygine::Vector2 API::innerResolution;
-bool API::usingCustomInnerResolution = false;
-unsigned int API::frameBuffer;
-unsigned int API::frameTexture;
+unsigned int API::frameBuffer = 0;
+unsigned int API::frameTexture = 0;
 
 float API::spriteVertices[] = {
     // pos      // tex
@@ -28,15 +28,19 @@ float API::spriteVertices[] = {
     1.0f, 0.0f, 1.0f, 0.0f
 };
 
+float API::frameBufferRect[] = {
+    // pos      // tex
+    -1.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, -1.0f, 1.0f, 0.0f,
+    -1.0f, -1.0f, 0.0f, 0.0f,
+
+    -1.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f, 0.0f
+};
+
 void API::Init()
 {
-    int width, height;
-    if (glfwGetWindowMonitor(glfwGetCurrentContext()) != nullptr)
-            glfwGetMonitorPos(glfwGetWindowMonitor(glfwGetCurrentContext()), &width, &height);
-    else
-        glfwGetWindowPos(glfwGetCurrentContext(), &width, &height);
-
-
     glEnable(GL_DEPTH_TEST);
     glfwSetFramebufferSizeCallback(glfwGetCurrentContext(), updateWindowResolutionCallback);
 
@@ -55,6 +59,39 @@ void API::Init()
     LoadShader(GL_VERTEX_SHADER, "Sprite.vert");
     LoadShader(GL_FRAGMENT_SHADER, "Sprite.frag");
 
+    CreateShaderProgram("FrameBuffer");
+    LoadShader(GL_VERTEX_SHADER, "FrameBuffer.vert");
+    LoadShader(GL_FRAGMENT_SHADER, "FrameBuffer.frag");
+
+    // Init frame buffer
+    Cygine::Vector2 resolution = GetWindowResolution();
+
+    glGenFramebuffers(1, &frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+    glGenTextures(1, &frameTexture);
+    glBindTexture(GL_TEXTURE_2D, frameTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resolution.x, resolution.y, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture, 0);
+
+    glGenVertexArrays(1, &frameBufferVAO);
+    glGenBuffers(1, &frameBufferVBO);
+    glBindVertexArray(frameBufferVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, frameBufferVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(frameBufferRect), frameBufferRect, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
+
+    glGenRenderbuffers(1, &frameBufferRBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, frameBufferRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, resolution.x, resolution.y);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBufferRBO);
 
     // Unbind
     glBindVertexArray(0);
@@ -169,7 +206,7 @@ void API::CheckErrors()
                 break;
             case GL_OUT_OF_MEMORY:errorDescription = "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
                 break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:errorDescription = "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
+            case GL_INVALID_FRAMEBUFFER_OPERATION:errorDescription = "GL_INVALID_FRAMEBUFFER_OPERATION: The frameBuffer object is not complete.";
                 break;
             case GL_CONTEXT_LOST:errorDescription = "GL_CONTEXT_LOST: The API context was lost.";
                 break;
@@ -185,39 +222,30 @@ void API::CheckErrors()
     if (!errorDescription.empty())
         throw std::runtime_error("GraphicLibraries::CheckErrors(). GraphicLibraries error: " + errorDescription);
 
-    // Check framebuffer errors
-    int framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    // Check frameBuffer errors
+    int frameBufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
-    if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+    if (frameBufferStatus != GL_FRAMEBUFFER_COMPLETE)
     {
-        switch (framebufferStatus)
+        switch (frameBufferStatus)
         {
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: The framebuffer is not complete.";
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: The frameBuffer is not complete.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: No image is attached to the framebuffer.";
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: No image is attached to the frameBuffer.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT: The frame buffer attached images have mismatching dimensions.";
+            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT: The frame buffer attached images have mismatching dimensions.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT: The frame buffer attached images have mismatching image formats.";
+            case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT: The frame buffer attached images have mismatching image formats.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: The frame buffer attached images have mismatching draw buffers.";
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: The frame buffer attached images have mismatching draw buffers.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: The frame buffer attached images have mismatching read buffers.";
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: The frame buffer attached images have mismatching read buffers.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: The frame buffer attached images have mismatching multisample.";
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: The frame buffer attached images have mismatching multisample.";
                 break;
-            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-                errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: The frame buffer attached images have mismatching layer targets.";
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:errorDescription = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: The frame buffer attached images have mismatching layer targets.";
                 break;
-            default:
-                errorDescription = "Unknown framebuffer error.";
+            default:errorDescription = "Unknown frameBuffer error.";
         }
 
         throw std::runtime_error("GraphicLibraries::CheckErrors(). Framebuffer error: " + errorDescription);
@@ -275,22 +303,26 @@ void API::Destroy()
 
 void API::DrawSprite(Sprite *sprite)
 {
-    int width, height;
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, sprite->GetPosition().y, 0.0f));  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
-    model = glm::translate(model, glm::vec3(0.5f * sprite->GetSize().x, 0.5f * sprite->GetSize().y, 0.0f)); // move origin of rotation to center of quad
-    model = glm::rotate(model, glm::radians(sprite->GetRotation()), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
-    model = glm::translate(model, glm::vec3(-0.5f * sprite->GetSize().x, -1.5 * sprite->GetSize().y, 0.0f)); // move origin back
-    model = glm::scale(model, glm::vec3(sprite->GetSize().x, sprite->GetSize().y, 1.0f)); // last scale
+    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, sprite->GetPosition().y, 0.0f));
+    model = glm::translate(model, glm::vec3(0.5f * sprite->GetPosition().x, 0.5f * sprite->GetPosition().y, 0.0f));
+    model = glm::rotate(model, glm::radians(sprite->GetRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::translate(model, glm::vec3(-0.5f * sprite->GetPosition().x, -0.5f * sprite->GetPosition().y, 0.0f));
+    model = glm::scale(model, glm::vec3(sprite->GetSize().x, sprite->GetSize().y, 1.0f));
 
-    glm::mat4 projection = glm::ortho(0.0f, (float) width, (float) -height, 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(
+        0.0f,
+        static_cast<float>(GetInnerResolution().x),
+        static_cast<float>(GetInnerResolution().y),
+        0.0f,
+        -1.0f,
+        1.0f
+    );
 
     OpenGL::API::UseShaderProgram("Sprites");
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("model", model);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("spriteColor", sprite->GetColor().GetShaderNormalized());
-    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image", 0);
+    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image", 1);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("projection", projection);
 
     glBindVertexArray(spriteVAO);
@@ -298,61 +330,61 @@ void API::DrawSprite(Sprite *sprite)
     glBindVertexArray(0);
 }
 
-void API::UpdateInnerResolutionScale()
+Cygine::Vector2 API::GetInnerResolution()
 {
-    int width, height;
+    Cygine::Vector2 resolution = GetWindowResolution();
 
-    if (glfwGetWindowMonitor(glfwGetCurrentContext()) != nullptr)
-        glfwGetMonitorPos(glfwGetWindowMonitor(glfwGetCurrentContext()), &width, &height);
-    else
-        glfwGetWindowPos(glfwGetCurrentContext(), &width, &height);
-
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-    innerResolutionScale.x = (float) innerResolution.x / (float) width;
-    innerResolutionScale.y = (float) innerResolution.y / (float) height;
-
-    glViewport(0, 0, width, height);
+    return Cygine::Vector2(
+        innerResolution.x == 0 ? resolution.x : innerResolution.x,
+        innerResolution.y == 0 ? resolution.y : innerResolution.y
+    );
 }
 
 void API::SetInnerResolution(int x, int y)
 {
     innerResolution.x = x;
     innerResolution.y = y;
-    UpdateInnerResolutionScale();
-    usingCustomInnerResolution = true;
 }
 
 void API::BeginFrameDraw()
 {
-    // glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glViewport(0, 0, GetInnerResolution().x, GetInnerResolution().y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
     CheckErrors();
 }
 
 void API::EndFrameDraw()
 {
-    // drawFrameBuffer();
+    Cygine::Vector2 resolution = GetWindowResolution();
+    glViewport(0, 0, resolution.x, resolution.y);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    UseShaderProgram("FrameBuffer");
+    glBindVertexArray(frameBufferVAO);
+    glDisable(GL_DEPTH_TEST);
+    glBindTexture(GL_TEXTURE_2D, frameTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glfwSwapBuffers(glfwGetCurrentContext());
+    glfwPollEvents();
+    CheckErrors();
 }
 
 void API::updateWindowResolutionCallback(GLFWwindow *window, int width, int height)
 {
-    // Update inner resolution if it wasn't set
-    if (!usingCustomInnerResolution)
-    {
-        if (glfwGetWindowMonitor(glfwGetCurrentContext()) != nullptr)
-            glfwGetMonitorPos(glfwGetWindowMonitor(glfwGetCurrentContext()), &width, &height);
-        else
-            glfwGetWindowPos(glfwGetCurrentContext(), &width, &height);
 
-        innerResolution.x = width;
-        innerResolution.y = height;
-    }
-
-    glViewport(0, 0, width, height);
 }
 
-void OpenGL::API::drawFrameBuffer()
+Cygine::Vector2 API::GetWindowResolution()
 {
+    int width, height;
 
+    if (glfwGetWindowMonitor(glfwGetCurrentContext()) != nullptr)
+        glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+    else
+        glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
-
+    return Cygine::Vector2(width, height);
 }

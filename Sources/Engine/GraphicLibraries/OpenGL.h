@@ -34,8 +34,9 @@ namespace OpenGL
         static void CreateShaderProgram(std::string name);
         static ShaderProgram* GetCurrentShaderProgram();
         static void DrawSprite(Sprite *sprite);
-        static void UpdateInnerResolutionScale();
+        static void UpdateInnerResolutionScale(int width, int height);
         static void SetInnerResolution(int x, int y);
+        static Cygine::Vector2 GetInnerResolution();
         static void Update();
 
         static void BeginFrameDraw();
@@ -44,15 +45,18 @@ namespace OpenGL
         static std::vector<ShaderProgram *> shaderPrograms;
         static ShaderProgram *currentShaderProgram;
         static float spriteVertices[];
+        static float frameBufferRect[];
+        static unsigned int frameBufferVBO, frameBufferVAO, frameBufferRBO;
         static unsigned int spriteVBO, spriteVAO;
         static unsigned int frameBuffer;
         static unsigned int frameTexture;
         static Cygine::Vector2 innerResolutionScale;
         static Cygine::Vector2 innerResolution;
-        static bool usingCustomInnerResolution;
 
         static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         static void drawFrameBuffer();
+        static void reinitFrameBuffer();
+        static Cygine::Vector2 GetWindowResolution();
     };
 }
 

@@ -7,7 +7,7 @@
 
 namespace Cygine
 {
-    class Vector2
+    class   Vector2
     {
     public:
         Vector2(double x = 0.0f, double y = 0.0f) : x(x), y(y) {};
