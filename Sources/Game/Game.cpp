@@ -28,16 +28,16 @@ void Game::Run()
 
     while (!engine->ShouldClose())
     {
-        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_RIGHT))
+        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_RIGHT))
             sprite.Move(1.0f, 0.0f);
 
-        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_LEFT))
+        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_LEFT))
             sprite.Move(-1.0f, 0.0f);
 
-        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_UP))
+        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_UP))
             sprite.Move(0.0f, 1.0f);
 
-        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_DOWN))
+        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_DOWN))
             sprite.Move(0.0f, -1.0f);
 
         if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::F11))

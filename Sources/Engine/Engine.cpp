@@ -14,6 +14,9 @@ Cygine::Engine::Engine()
     OpenGL::API::Init();
     Input::Init();
 
+    // Set textures to load correctly in Y axis
+    stbi_set_flip_vertically_on_load(true);
+
     // Init values
     lastFrameTime = OpenGL::API::GetTime();
 

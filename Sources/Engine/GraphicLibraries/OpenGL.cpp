@@ -308,7 +308,7 @@ void API::Destroy()
 void API::DrawSprite(Sprite *sprite)
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, sprite->GetPosition().y, 0.0f));
+    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, sprite->GetPosition().y - sprite->GetSize().y, 0.0f));
     model = glm::translate(model, glm::vec3(0.5f * sprite->GetPosition().x, 0.5f * sprite->GetPosition().y, 0.0f));
     model = glm::rotate(model, glm::radians(sprite->GetRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * sprite->GetPosition().x, -0.5f * sprite->GetPosition().y, 0.0f));
@@ -317,7 +317,7 @@ void API::DrawSprite(Sprite *sprite)
     glm::mat4 projection = glm::ortho(
         0.0f,
         static_cast<float>(GetInnerResolution().x),
-        static_cast<float>(GetInnerResolution().y),
+        -static_cast<float>(GetInnerResolution().y),
         0.0f,
         -1.0f,
         1.0f
