@@ -7,7 +7,7 @@
 
 #include "../CMakeConfig.h"
 #include "../Engine/Engine.h"
-#include "Menu.h"
+#include "Menu/Menu.h"
 #include <fstream>
 
 class Game
@@ -21,6 +21,11 @@ public:
 private:
     Cygine::Engine *engine = nullptr;
     Menu *menu = nullptr;
+    void initMenu();
+    void OnStartGameSelected();
+    void OnExitGameSelected();
+    void OnHighscoresSelected();
+    void OnCreditsSelected();
 };
 
 

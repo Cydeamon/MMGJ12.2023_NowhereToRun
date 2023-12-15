@@ -8,9 +8,9 @@
 #include "GraphicLibraries/OpenGL.h"
 #include "glm/ext/matrix_transform.hpp"
 
-Sprite::Sprite(const char* path, Cygine::Color color)
+Sprite::Sprite(std::string path, Cygine::Color color)
 {
-    texture = new OpenGL::Texture(path);
+    texture = new OpenGL::Texture(path.c_str());
     size = Cygine::Vector2(texture->GetWidth(), texture->GetHeight());
     this->color = color;
 }

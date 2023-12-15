@@ -16,7 +16,7 @@ class Sprite : public GameObject
 public:
     enum Alignment { BEGIN, END, CENTER };
 
-    Sprite(const char* path, Cygine::Color color = Cygine::Color::White());
+    Sprite(std::string path, Cygine::Color color = Cygine::Color::White());
 
     void Update() override;
     void Draw() override;

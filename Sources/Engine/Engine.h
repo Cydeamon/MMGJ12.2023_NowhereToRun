@@ -39,6 +39,7 @@ namespace Cygine
         bool IsFullscreen();
 
         void SetWindowResolution(int width, int height);
+        void SetShouldClose();
     private:
         double delta = 0;
         int fps = 0;

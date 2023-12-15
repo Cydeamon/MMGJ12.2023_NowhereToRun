@@ -18,6 +18,7 @@ Cygine::Vector2 API::innerResolutionScale;
 Cygine::Vector2 API::innerResolution;
 unsigned int API::frameBuffer = 0;
 unsigned int API::frameTexture = 0;
+bool API::coordinateSystemYInverted = true;
 
 float API::spriteVertices[] = {
     // pos      // tex
@@ -43,7 +44,7 @@ float API::frameBufferRect[] = {
 
 void API::Init()
 {
-    glfwSwapInterval(0);
+//    glfwSwapInterval(0);
     glfwSetErrorCallback(glfwErrorCallback);
     glEnable(GL_DEPTH_TEST);
     glfwSetFramebufferSizeCallback(glfwGetCurrentContext(), updateWindowResolutionCallback);
@@ -310,10 +311,12 @@ void API::Destroy()
 
 void API::DrawSprite(Sprite *sprite)
 {
-    float yShift = sprite->GetPosition().y - (sprite->GetSize().y);
+    float yShift;
 
-    if (sprite->GetSize().y < innerResolution.y)
-        yShift = sprite->GetPosition().y - (sprite->GetSize().y * 2);
+    if (coordinateSystemYInverted)
+        yShift = -sprite->GetSize().y - sprite->GetPosition().y;
+    else
+        yShift = -(innerResolution.y - sprite->GetPosition().y);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(sprite->GetPosition().x, yShift, 0.0f));
@@ -499,4 +502,9 @@ void API::SetWindowCentered()
 
         glfwSetWindowPos(window, (mode->width - GetWindowResolution().x) / 2, (mode->height - GetWindowResolution().y) / 2);
     }
+}
+
+void API::SetShouldClose()
+{
+    glfwSetWindowShouldClose(window, true);
 }

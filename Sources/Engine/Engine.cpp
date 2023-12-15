@@ -133,3 +133,8 @@ void Cygine::Engine::SetWindowResolution(int width, int height)
     SetWindowCentered();
 }
 
+void Cygine::Engine::SetShouldClose()
+{
+    OpenGL::API::SetShouldClose();
+}
+

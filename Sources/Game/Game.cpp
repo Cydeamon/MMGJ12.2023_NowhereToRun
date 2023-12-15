@@ -19,7 +19,38 @@ Game::Game()
     engine->SetInnerResolution(384, 216);
     engine->SetWindowResolution(1280, 720);
     engine->ForceWindowAspectRatio(16.0 / 9.0);
+
+    initMenu();
+}
+
+void Game::initMenu()
+{
     menu = new Menu();
+    menu->AddOption(new MenuOption("Assets/Menu/OptionStartGame.png", "Assets/Menu/OptionStartGameSelected.png", std::bind(&Game::OnStartGameSelected, this)));
+    menu->AddOption(new MenuOption("Assets/Menu/OptionHighscores.png", "Assets/Menu/OptionHighscoresSelected.png", std::bind(&Game::OnHighscoresSelected, this)));
+    menu->AddOption(new MenuOption("Assets/Menu/OptionCredits.png", "Assets/Menu/OptionCreditsSelected.png", std::bind(&Game::OnCreditsSelected, this)));
+    menu->AddOption(new MenuOption("Assets/Menu/OptionExit.png", "Assets/Menu/OptionExitSelected.png", std::bind(&Game::OnExitGameSelected, this)));
+}
+
+void Game::OnStartGameSelected()
+{
+    std::cout << "Start game" << std::endl;
+}
+
+void Game::OnCreditsSelected()
+{
+    std::cout << "Credits" << std::endl;
+}
+
+void Game::OnHighscoresSelected()
+{
+    std::cout << "Highscores" << std::endl;
+}
+
+void Game::OnExitGameSelected()
+{
+    std::cout << "Exit game" << std::endl;
+    engine->SetShouldClose();
 }
 
 void Game::Run()
