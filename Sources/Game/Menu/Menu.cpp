@@ -36,9 +36,10 @@ Menu::~Menu()
     delete logo;
 }
 
-void Menu::AddOption(MenuOption *option)
+MenuOption* Menu::AddOption(MenuOption *option)
 {
     int optionY = menuY + (optionHeight * options.size());
     options.push_back(option);
     option->SetPositionY(optionY);
+    return option;
 }

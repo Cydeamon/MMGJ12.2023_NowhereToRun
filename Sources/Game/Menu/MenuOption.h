@@ -24,6 +24,8 @@ public:
     void SetSelected(bool selected) { isSelected = selected; }
     void SetCallback(void (*callback)()) { this->callback = callback; }
 
+    void ReplaceStandartSprite(std::string string);
+    void ReplaceSelectedSprite(std::string string);
 private:
     Sprite *selectedSprite = nullptr;
     Sprite *standartSprite = nullptr;

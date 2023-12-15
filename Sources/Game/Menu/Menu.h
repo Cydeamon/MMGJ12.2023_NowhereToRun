@@ -16,7 +16,7 @@ public:
     Menu();
     ~Menu();
 
-    void AddOption(MenuOption* option);
+    MenuOption* AddOption(MenuOption* option);
     void ShowMenu() { isMenuActive = true; }
     void HideMenu() { isMenuActive = false; }
     void Draw();

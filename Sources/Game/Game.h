@@ -21,11 +21,22 @@ public:
 private:
     Cygine::Engine *engine = nullptr;
     Menu *menu = nullptr;
+    MenuOption *startGameOption = nullptr;
+    bool isGameWasStarted = false;
+    bool isGamePaused = false;
+
     void initMenu();
     void OnStartGameSelected();
     void OnExitGameSelected();
     void OnHighscoresSelected();
     void OnCreditsSelected();
+    void ListenControls();
+
+    /***************************************************************************/
+    /********************************* Sprites *********************************/
+
+    Sprite *background = nullptr;
+
 };
 
 

@@ -21,12 +21,14 @@ Game::Game()
     engine->ForceWindowAspectRatio(16.0 / 9.0);
 
     initMenu();
+
+    background = new Sprite("Assets/Level/LevelBG.png");
 }
 
 void Game::initMenu()
 {
     menu = new Menu();
-    menu->AddOption(new MenuOption("Assets/Menu/OptionStartGame.png", "Assets/Menu/OptionStartGameSelected.png", std::bind(&Game::OnStartGameSelected, this)));
+    startGameOption = menu->AddOption(new MenuOption("Assets/Menu/OptionStartGame.png", "Assets/Menu/OptionStartGameSelected.png", std::bind(&Game::OnStartGameSelected, this)));
     menu->AddOption(new MenuOption("Assets/Menu/OptionHighscores.png", "Assets/Menu/OptionHighscoresSelected.png", std::bind(&Game::OnHighscoresSelected, this)));
     menu->AddOption(new MenuOption("Assets/Menu/OptionCredits.png", "Assets/Menu/OptionCreditsSelected.png", std::bind(&Game::OnCreditsSelected, this)));
     menu->AddOption(new MenuOption("Assets/Menu/OptionExit.png", "Assets/Menu/OptionExitSelected.png", std::bind(&Game::OnExitGameSelected, this)));
@@ -34,7 +36,19 @@ void Game::initMenu()
 
 void Game::OnStartGameSelected()
 {
-    std::cout << "Start game" << std::endl;
+    std::cout << "Start game / Continue" << std::endl;
+
+    // Replace "StartGame" with "Continue" texture
+    if (!isGameWasStarted)
+    {
+        startGameOption->ReplaceStandartSprite("Assets/Menu/OptionContinue.png");
+        startGameOption->ReplaceSelectedSprite("Assets/Menu/OptionContinueSelected.png");
+    }
+
+    // Start game
+    isGamePaused = false;
+    isGameWasStarted = true;
+    menu->HideMenu();
 }
 
 void Game::OnCreditsSelected()
@@ -60,20 +74,44 @@ void Game::Run()
         /*********************************************/
         /******************** Updates ****************/
 
+        ListenControls();
         menu->Update();
 
         /*********************************************/
         /******************** Draws *****************/
 
-        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::F11))
-            engine->ToggleFullscreen();
-
         engine->Update();
         engine->BeginFrameDraw();
 
-        menu->Draw();
+        if (!isGameWasStarted || isGamePaused)
+            menu->Draw();
+        else
+        {
+            background->Draw();
+        }
 
         engine->EndFrameDraw();
+    }
+}
+
+void Game::ListenControls()
+{
+    // Fullscreen toggle
+    if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::F11))
+        engine->ToggleFullscreen();
+
+    // Pause
+    if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ESCAPE))
+    {
+        if (isGameWasStarted)
+        {
+            isGamePaused = !isGamePaused;
+
+            if (isGamePaused)
+                menu->ShowMenu();
+            else
+                menu->HideMenu();
+        }
     }
 }
 
@@ -81,5 +119,7 @@ Game::~Game()
 {
     delete menu;
     delete engine;
+    delete background;
 }
+
 

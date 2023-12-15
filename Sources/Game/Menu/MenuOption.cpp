@@ -60,3 +60,19 @@ void MenuOption::SetPositionY(int y)
     selectedSprite->SetPosition(Sprite::Alignment::CENTER, y);
 }
 
+void MenuOption::ReplaceStandartSprite(std::string string)
+{
+    Sprite *newSprite = new Sprite(string);
+    newSprite->SetPosition(Sprite::Alignment::CENTER, standartSprite->GetPosition().y);
+    delete standartSprite;
+    standartSprite = newSprite;
+}
+
+void MenuOption::ReplaceSelectedSprite(std::string string)
+{
+    Sprite *newSprite = new Sprite(string);
+    newSprite->SetPosition(Sprite::Alignment::CENTER, selectedSprite->GetPosition().y);
+    delete selectedSprite;
+    selectedSprite = newSprite;
+}
+
