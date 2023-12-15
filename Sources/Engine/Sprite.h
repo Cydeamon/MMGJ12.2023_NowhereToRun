@@ -14,16 +14,24 @@
 class Sprite : public GameObject
 {
 public:
+    enum Alignment { BEGIN, END, CENTER };
+
     Sprite(const char* path, Cygine::Color color = Cygine::Color::White());
+
+    void Update() override;
+    void Draw() override;
+    void Move(float x, float y);
 
     Cygine::Vector2 GetSize() const { return size; }
     float GetRotation() const { return rotation; }
     Cygine::Color GetColor() const { return color; }
 
-    void Update() override;
-    void Draw() override;
+    void SetPosition(Alignment alignment, int y);
+    void SetPosition(int x, Alignment alignment);
+    void SetPosition(Alignment alignmentX, Alignment alignmentY);
+    void SetPosition(int x, int y);
 
-    void Move(float x, float y);
+    OpenGL::Texture* GetTexture();
 private:
     OpenGL::Texture* texture;
     Cygine::Vector2 size;

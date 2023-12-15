@@ -48,6 +48,9 @@ void API::Init()
     glEnable(GL_DEPTH_TEST);
     glfwSetFramebufferSizeCallback(glfwGetCurrentContext(), updateWindowResolutionCallback);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Setup sprite buffers
     glGenVertexArrays(1, &spriteVAO);
     glGenBuffers(1, &spriteVBO);
@@ -295,6 +298,7 @@ ShaderProgram *API::GetCurrentShaderProgram()
 
 void API::Destroy()
 {
+    glfwDestroyWindow(window);
     glfwTerminate();
 
     for (ShaderProgram *shaderProgram: shaderPrograms)
@@ -302,13 +306,17 @@ void API::Destroy()
 
     glDeleteBuffers(1, &spriteVAO);
     glDeleteBuffers(1, &spriteVBO);
-    glfwDestroyWindow(window);
 }
 
 void API::DrawSprite(Sprite *sprite)
 {
+    float yShift = sprite->GetPosition().y - (sprite->GetSize().y);
+
+    if (sprite->GetSize().y < innerResolution.y)
+        yShift = sprite->GetPosition().y - (sprite->GetSize().y * 2);
+
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, sprite->GetPosition().y - sprite->GetSize().y, 0.0f));
+    model = glm::translate(model, glm::vec3(sprite->GetPosition().x, yShift, 0.0f));
     model = glm::translate(model, glm::vec3(0.5f * sprite->GetPosition().x, 0.5f * sprite->GetPosition().y, 0.0f));
     model = glm::rotate(model, glm::radians(sprite->GetRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * sprite->GetPosition().x, -0.5f * sprite->GetPosition().y, 0.0f));
@@ -323,15 +331,17 @@ void API::DrawSprite(Sprite *sprite)
         1.0f
     );
 
+    glActiveTexture(sprite->GetTexture()->GetTextureUnit());
     OpenGL::API::UseShaderProgram("Sprites");
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("model", model);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("spriteColor", sprite->GetColor().GetShaderNormalized());
-    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image", 1);
+    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image",  sprite->GetTexture()->GetTextureUnit() - GL_TEXTURE0);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("projection", projection);
 
     glBindVertexArray(spriteVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 Cygine::Vector2 API::GetInnerResolution()
@@ -352,10 +362,11 @@ void API::SetInnerResolution(int x, int y)
 
 void API::BeginFrameDraw()
 {
+    glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glViewport(0, 0, GetInnerResolution().x, GetInnerResolution().y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
     CheckErrors();
 }
 

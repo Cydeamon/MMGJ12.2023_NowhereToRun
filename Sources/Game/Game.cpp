@@ -12,33 +12,27 @@
 Game::Game()
 {
     engine = new Cygine::Engine();
-}
 
-void Game::Run()
-{
     if (!engine)
         throw std::runtime_error("Engine not initialized");
 
     engine->SetInnerResolution(384, 216);
     engine->SetWindowResolution(1280, 720);
     engine->ForceWindowAspectRatio(16.0 / 9.0);
+    menu = new Menu();
+}
 
-    // Load shaders
-    Sprite sprite("Assets/Menu.png");
-
+void Game::Run()
+{
     while (!engine->ShouldClose())
     {
-        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_RIGHT))
-            sprite.Move(1.0f, 0.0f);
+        /*********************************************/
+        /******************** Updates ****************/
 
-        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_LEFT))
-            sprite.Move(-1.0f, 0.0f);
+        menu->Update();
 
-        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_UP))
-            sprite.Move(0.0f, 1.0f);
-
-        if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::ARROW_DOWN))
-            sprite.Move(0.0f, -1.0f);
+        /*********************************************/
+        /******************** Draws *****************/
 
         if (Cygine::Input::IsJustPressed(Cygine::KeyboardKey::F11))
             engine->ToggleFullscreen();
@@ -46,7 +40,7 @@ void Game::Run()
         engine->Update();
         engine->BeginFrameDraw();
 
-        sprite.Draw();
+        menu->Draw();
 
         engine->EndFrameDraw();
     }
@@ -54,6 +48,7 @@ void Game::Run()
 
 Game::~Game()
 {
+    delete menu;
     delete engine;
 }
 

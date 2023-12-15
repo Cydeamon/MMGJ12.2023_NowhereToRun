@@ -28,6 +28,7 @@ namespace OpenGL
         void SetUniformValue(std::string name, ShaderVec4 value);
         void SetUniformValue(std::string name, float value);
         void SetUniformValue(std::string name, int value);
+        void SetUniformValue(std::string name, GLuint value) { SetUniformValue(name, (int)value); }
         void SetUniformValue(std::string name, glm::mat4 value);
 
         std::string GetName() const { return name; }

@@ -21,12 +21,15 @@ namespace OpenGL
         int GetHeight() { return height; }
         int GetNrChannels() { return nrChannels; }
         GLuint GetID() { return id; }
+        GLuint GetTextureUnit() { return textureUnit; }
 
     private:
         int width;
         int height;
         int nrChannels;
         GLuint id;
+        GLuint textureUnit;
+        static GLuint lastTextureUnit;
     };
 
 } // OpenGL

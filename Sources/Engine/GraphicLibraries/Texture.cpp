@@ -7,10 +7,17 @@
 
 namespace OpenGL
 {
+    GLuint Texture::lastTextureUnit = GL_TEXTURE0;
+
     Texture::Texture(const char* path)
     {
-        try 
+        textureUnit = lastTextureUnit + 1;
+        lastTextureUnit = textureUnit;
+        glActiveTexture(lastTextureUnit);
+
+        try
         {
+
             // Check if file exists
             std::ifstream file(path);
             if (!file.good())
@@ -28,12 +35,17 @@ namespace OpenGL
             glGenTextures(1, &id);
             glBindTexture(GL_TEXTURE_2D, id);
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
             stbi_image_free(data);
             API::CheckErrors();
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            std::cout << "Loaded texture: " << path << std::endl;
+            std::cout << "id: " << id << " textureUnit: " << textureUnit << std::endl;
+            std::cout << "lastTextureUnit: " << lastTextureUnit << std::endl;
+
+            glActiveTexture(GL_TEXTURE0);
         }
         catch (const std::exception& e)
         {

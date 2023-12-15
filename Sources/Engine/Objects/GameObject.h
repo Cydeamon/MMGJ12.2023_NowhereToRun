@@ -18,7 +18,7 @@ public:
     Cygine::Vector2 GetDirection() const { return direction; }
     Cygine::Vector2 GetVelocity() const { return velocity; }
 
-    void SetPosition(Cygine::Vector2 position) { this->position = position; }
+    virtual void SetPosition(Cygine::Vector2 position) { this->position = position; }
     void SetDirection(Cygine::Vector2 direction) { this->direction = direction; }
     void SetVelocity(Cygine::Vector2 velocity) { this->velocity = velocity; }
 
