@@ -1,9 +1,3 @@
 [submodule "Sources/Vendor/stb"]
 	path = Sources/Vendor/stb
 	url = https://github.com/nothings/stb.git
-[submodule "Sources/Vendor/glfw"]
-	path = Sources/Vendor/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "Sources/Vendor/glm"]
-	path = Sources/Vendor/glm
-	url = https://github.com/g-truc/glm.git
