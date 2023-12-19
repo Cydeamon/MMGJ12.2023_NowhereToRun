@@ -51,6 +51,14 @@ public abstract partial class Character : StaticBody2D
         bloodDropAreaSmallCollision = GetNode<CollisionShape2D>("BloodDropArea/SmallShape");
         bloodDrawCanvas = GetNode<Sprite2D>("/root/Main/Level/BloodDrawSprite");
         deathSprite = GetNode<Sprite2D>("DeathSprite");
+        
+        // Random init values
+        CircleShape2D bloodPoolShape = new CircleShape2D();
+        bloodDropAreaBigCollision.Shape = bloodPoolShape;
+        bloodPoolShape.Radius = (random.NextSingle() * 4f) + 2f;
+
+        bleedingTimer.WaitTime = (random.NextSingle() * 4) + 1;
+
     }
 
     public override void _Process(double delta)
@@ -87,8 +95,6 @@ public abstract partial class Character : StaticBody2D
                 
                 if (velocity == Vector2.Zero)
                     GetNode<CollisionShape2D>("Collision").Disabled = true;
-                
-                GD.Print(velocity);
             }
         }
     }
@@ -161,7 +167,7 @@ public abstract partial class Character : StaticBody2D
         if (!isDead)
         {
             die();
-            velocity = direction * 100;
+            velocity = direction * (random.Next(275) + 25);
         }
     }
 

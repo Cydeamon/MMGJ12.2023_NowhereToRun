@@ -25,8 +25,7 @@ script = ExtResource("1_p65lg")
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -8)
 sprite_frames = ExtResource("1_qox3d")
-animation = &"RunVertical"
-frame_progress = 0.653544
+animation = &"RunLeft"
 centered = false
 
 [node name="Collision" type="CollisionShape2D" parent="."]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cl83m3reh57jg"]
+[gd_scene load_steps=8 format=3 uid="uid://cl83m3reh57jg"]
 
 [ext_resource type="Script" path="res://Sources/Characters/Enemy.cs" id="1_woqev"]
 [ext_resource type="SpriteFrames" uid="uid://byhgtw8tpxfql" path="res://GameObjects/Characters/EnemiesAnimations.tres" id="2_bxptw"]
@@ -13,10 +13,7 @@ size = Vector2(3, 4)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5x3y0"]
 size = Vector2(1, 2)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_36cwc"]
-radius = 3.0
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_3qqq4"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_sab5q"]
 radius = 1.5
 
 [node name="Enemy" type="StaticBody2D"]
@@ -51,12 +48,11 @@ position = Vector2(6, -4)
 
 [node name="BigShape" type="CollisionShape2D" parent="BloodDropArea"]
 position = Vector2(4, -4)
-shape = SubResource("CircleShape2D_36cwc")
 debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 
 [node name="SmallShape" type="CollisionShape2D" parent="BloodDropArea"]
 position = Vector2(3, -4)
-shape = SubResource("CircleShape2D_3qqq4")
+shape = SubResource("CircleShape2D_sab5q")
 debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 
 [node name="BleedingTimer" type="Timer" parent="."]

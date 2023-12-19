@@ -1,5 +1,6 @@
 ﻿using System;
 using Godot;
+using static NowhereToRun.Sources.Main;
 
 namespace NowhereToRun.Sources.Characters;
 
@@ -19,6 +20,7 @@ public partial class Enemy : Character
     /******************************* Properties *********************************/
 
     [Export] public EnemyType Type = EnemyType.PISTOL;
+    [Export] private bool isEmpty = false;
 
     /****************************************************************************/
     /******************************** Methods ***********************************/
@@ -31,9 +33,34 @@ public partial class Enemy : Character
 
     protected override void pickAnimation()
     {
-        string targetAnimation = "";
-        
-        if (targetAnimation != characterSprite.Animation)
-            characterSprite.Play(targetAnimation);
+        if (IsGameStarted() && !IsGamePaused() && !isDead)
+        {
+            string targetAnimation = "";
+
+            if (isEmpty)
+                targetAnimation = "Empty";
+            else
+            {
+                targetAnimation = Type switch
+                {
+                    EnemyType.PISTOL  => "Pistol",
+                    EnemyType.GRENADE => "Grenade",
+                    _                 => "Empty"
+                };
+            }
+            
+            if (velocity.X > 0)
+                targetAnimation += "RunRight";
+            else if (velocity.X < 0)
+                targetAnimation += "RunLeft";
+            else if (velocity.Y != 0)
+                targetAnimation += "RunVertical";
+
+            if (velocity == Vector2.Zero)
+                targetAnimation += "Idle";
+
+            if (targetAnimation != characterSprite.Animation)
+                characterSprite.Play(targetAnimation);
+        }
     }
 }
