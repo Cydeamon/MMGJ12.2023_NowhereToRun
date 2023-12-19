@@ -9,8 +9,11 @@ public partial class Main : Node2D
     /***************************** Game properties *****************************/
 
     private static bool isGameStarted = false;
-    private static bool isGamePaused = false;
+    private static bool isGamePaused = true;
     private int score = 0;
+
+    private AudioStream LevelStartMusic = GD.Load<AudioStream>("res://Assets/Music/LevelStart.wav");
+    private AudioStream LevelMusic = GD.Load<AudioStream>("res://Assets/Music/Gameplay.wav");
 
     /***************************************************************************/
     /********************************** Nodes **********************************/
@@ -19,6 +22,9 @@ public partial class Main : Node2D
     public Node2D Level;
     public Node2D HUD;
     public Node ProjectilesContainer;
+    public AudioStreamPlayer MenuPlayer;
+    public AudioStreamPlayer GameplayPlayer;
+
 
     /***************************************************************************/
     /***************************** Global game data ****************************/
@@ -37,7 +43,8 @@ public partial class Main : Node2D
         Level = GetNode<Node2D>("Level");
         HUD = GetNode<Node2D>("HUD");
         ProjectilesContainer = GetNode("Level/Projectiles");
-
+        MenuPlayer = GetNode<AudioStreamPlayer>("MenuPlayer");
+        GameplayPlayer = GetNode<AudioStreamPlayer>("GameplayPlayer");
 
         // If windowed by default - expand window until it large enough to fit the screen
         if (GetViewport().GetWindow().Mode == Window.ModeEnum.Windowed)
@@ -69,8 +76,23 @@ public partial class Main : Node2D
     public override void _Process(double delta)
     {
         HandlePauseToggle();
+        HandleMusic();
         HandleFullscreenToggle();
         destroyOutOfBoundsProjectiles();
+    }
+
+    private void HandleMusic()
+    {
+        if (!isGamePaused)
+        {
+            GameplayPlayer.VolumeDb = 0;
+            MenuPlayer.VolumeDb = -80;
+        }
+        else
+        {
+            MenuPlayer.VolumeDb = 0;
+            GameplayPlayer.VolumeDb = -80;
+        }
     }
 
     private void destroyOutOfBoundsProjectiles()
@@ -112,9 +134,13 @@ public partial class Main : Node2D
             startButton.TexturePressed = continueButtonPressed;
             startButton.TextureFocused = continueButtonPressed;
             startButton.TextureHover = continueButtonPressed;
+
+            GameplayPlayer.Stream = LevelStartMusic;
+            GameplayPlayer.Play();
         }
 
         isGameStarted = true;
+        isGamePaused = false;
         Menu.Hide();
         Level.Show();
         HUD.Show();
@@ -127,6 +153,16 @@ public partial class Main : Node2D
             GetViewport().GetWindow().Mode = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen
                 ? Window.ModeEnum.Windowed
                 : Window.ModeEnum.ExclusiveFullscreen;
+        }
+    }
+
+    private void OnGameplayMusicFinished()
+    {
+        GD.Print("FINISHED");
+        if (GameplayPlayer.Stream == LevelStartMusic)
+        {
+            GameplayPlayer.Stream = LevelMusic;
+            GameplayPlayer.Play();
         }
     }
 }

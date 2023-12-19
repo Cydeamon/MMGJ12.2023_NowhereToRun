@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=19 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://dmflu2nwam5li" path="res://Assets/MessageReady.png" id="7_6kqek"]
 [ext_resource type="PackedScene" uid="uid://cl83m3reh57jg" path="res://GameObjects/Characters/Enemy.tscn" id="9_5vmr3"]
 [ext_resource type="PackedScene" uid="uid://sr3gwuqoyhhy" path="res://GameObjects/Characters/Player.tscn" id="10_alkds"]
+[ext_resource type="AudioStream" uid="uid://cocaqa537k010" path="res://Assets/Music/Menu.wav" id="12_2ghfv"]
+[ext_resource type="AudioStream" uid="uid://wv44w3m1pbse" path="res://Assets/Music/LevelStart.wav" id="13_btshr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w7n5a"]
 size = Vector2(43, 187.5)
@@ -163,5 +165,13 @@ position = Vector2(181, 68)
 
 [node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
 
+[node name="MenuPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_2ghfv")
+autoplay = true
+
+[node name="GameplayPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_btshr")
+
 [connection signal="Exit" from="Menu" to="." method="Exit"]
 [connection signal="StartGame" from="Menu" to="." method="StartGame"]
+[connection signal="finished" from="GameplayPlayer" to="." method="OnGameplayMusicFinished"]
