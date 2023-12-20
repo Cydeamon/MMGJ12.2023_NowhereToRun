@@ -21,14 +21,169 @@ public partial class Enemy : Character
 
     [Export] public EnemyType Type = EnemyType.PISTOL;
     [Export] private bool isEmpty = false;
+    [Export] public int ShotMinTime = 1000;
+    [Export] public int ShotMaxTime = 2000;
+    [Export] public int GrenadeThrowMinTime = 10000;
+    [Export] public int GrenadeThrowMaxTime = 20000;
+    private int grenades = 2;
+    private ulong nextShotTime;
+    private Node2D projectileSpawnPoint;
+
+    /****************************************************************************/
+    /******************************* Level nodes ********************************/
+
+    private Area2D EnemiesSpawnArea;
+    private CollisionShape2D EnemiesSpawnAreaCollision;
+    private RectangleShape2D EnemiesSpawnAreaCollisionShape;
+    private Player Player;
 
     /****************************************************************************/
     /******************************** Methods ***********************************/
 
+
+    public override void _Ready()
+    {
+        base._Ready();
+        Speed -= 20;
+
+        if (Type == 0)
+            isEmpty = true;
+
+        nextShotTime = Time.GetTicksMsec();
+
+        // Nodes init
+        EnemiesSpawnArea = GetNode<Area2D>("/root/Main/Level/EnemiesSpawnArea");
+        EnemiesSpawnAreaCollision = EnemiesSpawnArea.GetChild<CollisionShape2D>(0);
+        EnemiesSpawnAreaCollisionShape = EnemiesSpawnArea.GetChild<CollisionShape2D>(0).Shape as RectangleShape2D;
+        Player = GetNode<Player>("/root/Main/Level/Player");
+        projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
+    }
+
+    private void determineNextShotTime()
+    {
+        int shotTimeMin;
+        int shotTimeMax;
+
+        if (Type == EnemyType.PISTOL)
+        {
+            shotTimeMin = ShotMinTime;
+            shotTimeMax = ShotMaxTime;
+        }
+        else
+        {
+            shotTimeMin = GrenadeThrowMinTime;
+            shotTimeMax = GrenadeThrowMaxTime;
+        }
+
+        nextShotTime = (ulong)GD.RandRange(shotTimeMin, shotTimeMax) + Time.GetTicksMsec();
+    }
+
+
     public override void _Process(double delta)
     {
         base._Process(delta);
+        handleAI();
+        handleMovement();
         pickAnimation();
+    }
+
+    private void handleMovement()
+    {
+        if (!isDead && !IsGamePaused())
+        {
+            velocity = moveDirection * Speed;
+            MoveAndCollide(velocity * (float)delta);
+        }
+    }
+
+    private void handleAI()
+    {
+        if (!isDead && !IsGamePaused())
+        {
+            /*
+             * Empty enemies run towards the spawn point, when they reach it - they despawn
+             * Pistol enemies run towards the player and shoot every 1-2 seconds
+             * Grenade enemies run towards the player and throw a grenade at the 2-5 meters distance every 10-20 seconds
+             */
+
+            moveDirection = Vector2.Zero;
+
+            if (isEmpty)
+            {
+                float xLeft = EnemiesSpawnAreaCollision.GlobalPosition.X - EnemiesSpawnAreaCollisionShape.Size.X / 2;
+                float xRight = EnemiesSpawnAreaCollision.GlobalPosition.X + EnemiesSpawnAreaCollisionShape.Size.X / 2;
+
+                Vector2 targetPoint;
+
+                if (GlobalPosition.X < xLeft)
+                    targetPoint = new Vector2(xLeft, EnemiesSpawnAreaCollision.GlobalPosition.Y);
+                else if (GlobalPosition.X > xRight)
+                    targetPoint =
+                        new Vector2(
+                            xRight, EnemiesSpawnAreaCollision.GlobalPosition.Y + EnemiesSpawnAreaCollisionShape.Size.Y);
+                else
+                    targetPoint = new Vector2(GlobalPosition.X,
+                                              EnemiesSpawnAreaCollision.GlobalPosition.Y +
+                                              EnemiesSpawnAreaCollisionShape.Size.Y / 2);
+
+                if (targetPoint == GlobalPosition)
+                {
+                    QueueFree();
+                    return;
+                }
+
+                moveDirection = (targetPoint - GlobalPosition).Normalized();
+            }
+            else
+            {
+                if (!Player.IsDead())
+                {
+                    if (Type == EnemyType.PISTOL)
+                    {
+                        if (Math.Abs(GlobalPosition.DistanceTo(Player.GlobalPosition)) > 20)
+                            moveDirection = Player.GlobalPosition - GlobalPosition;
+
+                        if (Time.GetTicksMsec() > nextShotTime)
+                        {
+                            determineNextShotTime();
+                            Projectile projectile =
+                                (Projectile)GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
+                            projectile.Shooter = this;
+                            projectile.Direction = (Player.GlobalPosition - GlobalPosition).Normalized();
+                            projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
+                            GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
+                        }
+                    }
+
+                    if (Type == EnemyType.GRENADE)
+                    {
+                        if (Math.Abs(GlobalPosition.DistanceTo(Player.GlobalPosition)) > 60)
+                            moveDirection = Player.GlobalPosition - GlobalPosition;
+                        else
+                        {
+                            GD.Print(Time.GetTicksMsec());
+                            GD.Print(nextShotTime);
+
+                            if (Time.GetTicksMsec() > nextShotTime && !Player.IsDead())
+                            {
+                                determineNextShotTime();
+                                grenades--;
+
+                                if (grenades <= 0)
+                                    isEmpty = true;
+
+                                Grenade grenade = (Grenade)GD.Load<PackedScene>("res://GameObjects/Grenade.tscn").Instantiate();
+                                grenade.Throw((Player.GlobalPosition - GlobalPosition).Normalized());
+                                grenade.GlobalPosition = projectileSpawnPoint.GlobalPosition;
+                                GetNode("/root/Main/Level/Projectiles").AddChild(grenade);
+                            }
+                        }
+                    }
+                }
+            }
+
+            moveDirection = moveDirection.Normalized();
+        }
     }
 
     protected override void pickAnimation()
@@ -48,7 +203,7 @@ public partial class Enemy : Character
                     _                 => "Empty"
                 };
             }
-            
+
             if (velocity.X > 0)
                 targetAnimation += "RunRight";
             else if (velocity.X < 0)
@@ -62,5 +217,10 @@ public partial class Enemy : Character
             if (targetAnimation != characterSprite.Animation)
                 characterSprite.Play(targetAnimation);
         }
+    }
+
+    public bool IsEmpty()
+    {
+        return isEmpty;
     }
 }

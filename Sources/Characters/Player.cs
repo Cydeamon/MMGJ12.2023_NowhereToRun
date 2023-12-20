@@ -41,7 +41,7 @@ public partial class Player : Character
 		if (Input.IsActionJustPressed("fire") && !isDead && IsGameStarted() && !IsGamePaused())
 		{
 			Projectile projectile = (Projectile) GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
-			projectile.HurtPlayer = false;
+			projectile.Shooter = this;
 			projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
 			projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
 			GetNode("/root/Main/Level/Projectiles").AddChild(projectile);

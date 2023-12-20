@@ -48,7 +48,6 @@ debug_color = Color(0.807843, 0, 0.0235294, 0.419608)
 position = Vector2(6, -4)
 
 [node name="BloodDropArea" type="Area2D" parent="."]
-visible = false
 
 [node name="BigShape" type="CollisionShape2D" parent="BloodDropArea"]
 position = Vector2(3, -4)

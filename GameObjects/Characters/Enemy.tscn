@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://cl83m3reh57jg"]
+[gd_scene load_steps=9 format=3 uid="uid://cl83m3reh57jg"]
 
 [ext_resource type="Script" path="res://Sources/Characters/Enemy.cs" id="1_woqev"]
 [ext_resource type="SpriteFrames" uid="uid://byhgtw8tpxfql" path="res://GameObjects/Characters/EnemiesAnimations.tres" id="2_bxptw"]
@@ -13,11 +13,16 @@ size = Vector2(3, 4)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5x3y0"]
 size = Vector2(1, 2)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_yvpw1"]
+radius = 5.09902
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_sab5q"]
 radius = 1.5
 
 [node name="Enemy" type="StaticBody2D"]
 script = ExtResource("1_woqev")
+GrenadeThrowMinTime = 5000
+GrenadeThrowMaxTime = 15000
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -8)
@@ -48,6 +53,7 @@ position = Vector2(6, -4)
 
 [node name="BigShape" type="CollisionShape2D" parent="BloodDropArea"]
 position = Vector2(4, -4)
+shape = SubResource("CircleShape2D_yvpw1")
 debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 
 [node name="SmallShape" type="CollisionShape2D" parent="BloodDropArea"]

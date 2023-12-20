@@ -17,13 +17,13 @@ public partial class Projectile : Area2D
 
     [Export] private float speed = 200f;
     [Export] public Vector2 Direction = Vector2.Zero;
-    [Export] public bool HurtPlayer = true;
+    public Character Shooter;
     private double delta;
     private Vector2 velocity;
 
     /***************************************************************************/
     /******************************* Methods **********************************/
-
+    
     public override void _Ready()
     {
         velocity = Direction.Normalized() * speed;
@@ -58,16 +58,12 @@ public partial class Projectile : Area2D
         for (int i = 0; i < areas.Count; i++)
         {
             Area2D area = areas[i];
+            Character character = area.GetParent() as Character;
 
             if (area.Name != "HitArea")
                 continue;
-
-            Character character = area.GetParent() as Character;
-            bool isPlayer = character is Player;
-            bool isEnemy = character is Enemy;
-
-            if ((character != null && !character.IsDead()) &&
-                ((isPlayer && HurtPlayer) || isEnemy))
+            
+            if (character != null && !character.IsDead() && Shooter != character)
             {
                 character.BulletHit(Direction);
                 QueueFree();

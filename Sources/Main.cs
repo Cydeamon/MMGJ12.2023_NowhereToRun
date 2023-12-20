@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using NowhereToRun.Sources.Characters;
 
 namespace NowhereToRun.Sources;
 
@@ -11,7 +12,13 @@ public partial class Main : Node2D
     private static bool isGameStarted = false;
     private static bool isGamePaused = true;
     private int score = 0;
-
+    private int enemiesInitialNumber = 50;
+    private int enemiesLeft = 50;
+    [Export] private int enemySpawnTimeMin = 250;
+    [Export] private int enemySpawnTimeMax = 1500;
+    [Export] public float GrenadeEnemySpawnChance = 10;
+    private ulong nextEnemySpawnTime;
+    protected readonly Random random = new Random();
     private AudioStream LevelStartMusic = GD.Load<AudioStream>("res://Assets/Music/LevelStart.wav");
     private AudioStream LevelMusic = GD.Load<AudioStream>("res://Assets/Music/Gameplay.wav");
 
@@ -24,6 +31,9 @@ public partial class Main : Node2D
     public Node ProjectilesContainer;
     public AudioStreamPlayer MenuPlayer;
     public AudioStreamPlayer GameplayPlayer;
+    public Area2D EnemiesSpawnArea;
+    public CollisionShape2D EnemiesSpawnAreaCollision;
+    public RectangleShape2D EnemiesSpawnAreaCollisionShape;
 
 
     /***************************************************************************/
@@ -45,6 +55,14 @@ public partial class Main : Node2D
         ProjectilesContainer = GetNode("Level/Projectiles");
         MenuPlayer = GetNode<AudioStreamPlayer>("MenuPlayer");
         GameplayPlayer = GetNode<AudioStreamPlayer>("GameplayPlayer");
+        EnemiesSpawnArea = GetNode<Area2D>("Level/EnemiesSpawnArea");
+        EnemiesSpawnAreaCollision = EnemiesSpawnArea.GetChild<CollisionShape2D>(0);
+        EnemiesSpawnAreaCollisionShape = EnemiesSpawnArea.GetChild<CollisionShape2D>(0).Shape as RectangleShape2D;
+
+        // Init game
+        score = 0;
+        enemiesLeft = enemiesInitialNumber;
+        nextEnemySpawnTime = (ulong)random.Next(enemySpawnTimeMin, enemySpawnTimeMax) + Time.GetTicksMsec();
 
         // If windowed by default - expand window until it large enough to fit the screen
         if (GetViewport().GetWindow().Mode == Window.ModeEnum.Windowed)
@@ -79,6 +97,43 @@ public partial class Main : Node2D
         HandleMusic();
         HandleFullscreenToggle();
         destroyOutOfBoundsProjectiles();
+
+        HandleEnemiesSpawn();
+    }
+
+    private void HandleEnemiesSpawn()
+    {
+        if (!isGamePaused)
+        {
+            if (enemiesLeft > 0)
+            {
+                if (Time.GetTicksMsec() > nextEnemySpawnTime)
+                {
+                    enemiesLeft--;
+                    nextEnemySpawnTime = (ulong)random.Next(enemySpawnTimeMin, enemySpawnTimeMax) + Time.GetTicksMsec();
+
+                    int xLeft = (int)(EnemiesSpawnAreaCollision.GlobalPosition.X -
+                                      EnemiesSpawnAreaCollisionShape.Size.X / 2);
+                    int xRight = (int)(EnemiesSpawnAreaCollision.GlobalPosition.X +
+                                       EnemiesSpawnAreaCollisionShape.Size.X / 2);
+                    int xFinal = random.Next(xLeft, xRight);
+
+                    Vector2 spawnPoint = new Vector2(
+                        xFinal,
+                        EnemiesSpawnAreaCollision.GlobalPosition.Y + EnemiesSpawnAreaCollisionShape.Size.Y
+                    );
+
+                    var enemy = GD.Load<PackedScene>("res://GameObjects/Characters/Enemy.tscn").Instantiate<Enemy>();
+
+                    enemy.Type = random.Next(100) < GrenadeEnemySpawnChance
+                        ? Enemy.EnemyType.GRENADE
+                        : Enemy.EnemyType.PISTOL;
+
+                    enemy.GlobalPosition = spawnPoint;
+                    GetNode("Level/Enemies").AddChild(enemy);
+                }
+            }
+        }
     }
 
     private void HandleMusic()
@@ -163,6 +218,17 @@ public partial class Main : Node2D
         {
             GameplayPlayer.Stream = LevelMusic;
             GameplayPlayer.Play();
+        }
+    }
+
+    private void OnEnemyEntersSpawnArea(Node2D node)
+    {
+        if (node is Enemy enemy)
+        {
+            if (enemy.IsEmpty())
+            {
+                enemy.QueueFree();
+            }
         }
     }
 }

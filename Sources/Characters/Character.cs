@@ -54,8 +54,8 @@ public abstract partial class Character : StaticBody2D
         
         // Random init values
         CircleShape2D bloodPoolShape = new CircleShape2D();
-        bloodDropAreaBigCollision.Shape = bloodPoolShape;
         bloodPoolShape.Radius = (random.NextSingle() * 4f) + 2f;
+        bloodDropAreaBigCollision.Shape = bloodPoolShape;
 
         bleedingTimer.WaitTime = (random.NextSingle() * 4) + 1;
 
@@ -168,6 +168,15 @@ public abstract partial class Character : StaticBody2D
         {
             die();
             velocity = direction * (random.Next(275) + 25);
+        }
+    }
+    
+    public void BlastHit(Vector2 explosionPosition)
+    {
+        if (!isDead)
+        {
+            die();
+            velocity = (GlobalPosition - explosionPosition).Normalized() * (random.Next(275) + 25);
         }
     }
 
