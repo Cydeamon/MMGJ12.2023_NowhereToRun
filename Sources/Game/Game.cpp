@@ -4,6 +4,8 @@
 
 #include "Game.h"
 #include "../Engine/Sprite.h"
+#include "../Engine/Shapes.h"
+#include "Player.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -38,9 +40,11 @@ void Game::OnStartGameSelected()
 {
     std::cout << "Start game / Continue" << std::endl;
 
-    // Replace "StartGame" with "Continue" texture
     if (!isGameWasStarted)
     {
+        player = new Player();
+
+        // Replace "StartGame" with "Continue" texture
         startGameOption->ReplaceStandartSprite("Assets/Menu/OptionContinue.png");
         startGameOption->ReplaceSelectedSprite("Assets/Menu/OptionContinueSelected.png");
     }
@@ -69,6 +73,15 @@ void Game::OnExitGameSelected()
 
 void Game::Run()
 {
+    Line line(5, 5, DEFAULT_WINDOW_WIDTH - 5, DEFAULT_WINDOW_HEIGHT - 5);
+    line.color = Cygine::Color::Green();
+
+    Circle circle(0, 0, 20);
+    circle.color = Cygine::Color::Blue();
+
+    Rectangle rectangle(50, 50, 10, 10);
+    rectangle.color = Cygine::Color::Red();
+
     while (!engine->ShouldClose())
     {
         /*********************************************/
@@ -76,6 +89,48 @@ void Game::Run()
 
         ListenControls();
         menu->Update();
+
+        if (isGameWasStarted && !isGamePaused)
+        {
+            if (player)
+                player->Update();
+        }
+
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_LEFT))
+        {
+            line.end.x -= 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_RIGHT))
+        {
+            line.end.x += 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_UP))
+        {
+            line.end.y -= 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::ARROW_DOWN))
+        {
+            line.end.y += 1;
+        }
+
+
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::A))
+        {
+            line.position.x -= 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::D))
+        {
+            line.position.x += 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::W))
+        {
+            line.position.y -= 1;
+        }
+        if (Cygine::Input::IsPressed(Cygine::KeyboardKey::S))
+        {
+            line.position.y += 1;
+        }
+
 
         /*********************************************/
         /******************** Draws *****************/
@@ -88,7 +143,13 @@ void Game::Run()
         else
         {
             background->Draw();
+            player->Draw();
         }
+
+        std::cout << line.position.x << " " << line.position.y << std::endl;
+        line.Draw();
+        circle.Draw();
+        rectangle.Draw();
 
         engine->EndFrameDraw();
     }

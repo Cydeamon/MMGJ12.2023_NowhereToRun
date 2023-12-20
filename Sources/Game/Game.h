@@ -8,6 +8,7 @@
 #include "../CMakeConfig.h"
 #include "../Engine/Engine.h"
 #include "Menu/Menu.h"
+#include "Player.h"
 #include <fstream>
 
 class Game
@@ -24,6 +25,7 @@ private:
     MenuOption *startGameOption = nullptr;
     bool isGameWasStarted = false;
     bool isGamePaused = false;
+    Player *player = nullptr;
 
     void initMenu();
     void OnStartGameSelected();

@@ -28,9 +28,9 @@ namespace OpenGL
         static void Destroy();
         static void InitGLFW();
         static void InitGLAD();
-        static void LoadShader(unsigned int type, std::string filename);
+        static void LoadShader(unsigned int type, const std::string& filename);
         static void CheckErrors();
-        static void UseShaderProgram(std::string name);
+        static void UseShaderProgram(const std::string& name);
         static void CreateShaderProgram(std::string name);
         static ShaderProgram* GetCurrentShaderProgram();
         static void DrawSprite(Sprite *sprite);
@@ -54,19 +54,29 @@ namespace OpenGL
         static bool IsShouldClose();
         static void SetWindowCentered();
         static void SetShouldClose();
+        static float GetDeltaTime();
+
+        static int GetFPS();
+        static void DrawShape(void *shape);
     private:
         static std::vector<ShaderProgram *> shaderPrograms;
         static ShaderProgram *currentShaderProgram;
         static float spriteVertices[];
         static float frameBufferRect[];
+        static float lineVertices[];
         static unsigned int frameBufferVBO, frameBufferVAO, frameBufferRBO;
         static unsigned int spriteVBO, spriteVAO;
+        static unsigned int lineVBO, lineVAO;
         static unsigned int frameBuffer;
         static unsigned int frameTexture;
         static Cygine::Vector2 innerResolutionScale;
         static Cygine::Vector2 innerResolution;
         static GLFWwindow *window;
         static bool coordinateSystemYInverted;
+        static double delta;
+        static int fps;
+        static double lastFrameTime;
+
 
         static void updateWindowResolutionCallback(GLFWwindow *window, int width, int height);
         static void drawFrameBuffer();

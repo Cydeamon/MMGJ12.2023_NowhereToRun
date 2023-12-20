@@ -5,16 +5,20 @@
 #include "OpenGL.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
+#include "../Shapes.h"
 
 using namespace OpenGL;
 
 unsigned int API::spriteVBO = 0, API::spriteVAO = 0;
 unsigned int API::frameBufferVBO = 0, API::frameBufferVAO = 0, API::frameBufferRBO = 0;
+unsigned int API::lineVAO = 0, API::lineVBO = 0;
 ShaderProgram *API::currentShaderProgram = nullptr;
 GLFWwindow *API::window = nullptr;
+double API::delta = 0;
+int API::fps = 0;
+double API::lastFrameTime = 0;
 
 std::vector<ShaderProgram *> API::shaderPrograms;
-Cygine::Vector2 API::innerResolutionScale;
 Cygine::Vector2 API::innerResolution;
 unsigned int API::frameBuffer = 0;
 unsigned int API::frameTexture = 0;
@@ -42,8 +46,16 @@ float API::frameBufferRect[] = {
     1.0f, -1.0f, 1.0f, 0.0f
 };
 
+float API::lineVertices[] = {
+    -1.0f, -1.0f,
+    1.0f, 1.0f,
+};
+
 void API::Init()
 {
+    lastFrameTime = GetTime();
+
+
 //    glfwSwapInterval(0);
     glfwSetErrorCallback(glfwErrorCallback);
     glEnable(GL_DEPTH_TEST);
@@ -59,7 +71,17 @@ void API::Init()
     glBindBuffer(GL_ARRAY_BUFFER, spriteVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(spriteVertices), spriteVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) nullptr);
+    CheckErrors();
+
+    // Setup line buffers
+    glGenVertexArrays(1, &lineVAO);
+    glGenBuffers(1, &lineVBO);
+    glBindVertexArray(lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) nullptr);
     CheckErrors();
 
     // Init shaders
@@ -71,6 +93,10 @@ void API::Init()
     LoadShader(GL_VERTEX_SHADER, "FrameBuffer.vert");
     LoadShader(GL_FRAGMENT_SHADER, "FrameBuffer.frag");
 
+    CreateShaderProgram("Shapes");
+    LoadShader(GL_VERTEX_SHADER, "Shapes.vert");
+    LoadShader(GL_FRAGMENT_SHADER, "Shapes.frag");
+
     // Init frame buffer
     Cygine::Vector2 resolution = GetWindowResolution();
 
@@ -79,7 +105,7 @@ void API::Init()
 
     glGenTextures(1, &frameTexture);
     glBindTexture(GL_TEXTURE_2D, frameTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resolution.x, resolution.y, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (int) resolution.x, (int) resolution.y, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -92,13 +118,13 @@ void API::Init()
     glBindBuffer(GL_ARRAY_BUFFER, frameBufferVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(frameBufferRect), frameBufferRect, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
 
     glGenRenderbuffers(1, &frameBufferRBO);
     glBindRenderbuffer(GL_RENDERBUFFER, frameBufferRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, resolution.x, resolution.y);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (int) resolution.x, (int) resolution.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBufferRBO);
 
     // Unbind
@@ -129,10 +155,10 @@ void API::InitGLAD()
  * @param type     Shader type from opengl
  * @param filename Shader filename
  */
-void API::LoadShader(unsigned int type, std::string filename)
+void API::LoadShader(unsigned int type, const std::string &filename)
 {
     // Check if shader programs is created
-    if (shaderPrograms.size() == 0)
+    if (shaderPrograms.empty())
         throw std::runtime_error("GraphicLibraries::LoadShader(). No shader programs is created");
 
     ShaderProgram *shaderProgram =
@@ -153,7 +179,7 @@ void API::LoadShader(unsigned int type, std::string filename)
     std::ifstream shaderFile("Shaders/" + filename);
     std::string shaderString((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
     const char *shaderSource = shaderString.c_str();
-    glShaderSource(shader, 1, &shaderSource, NULL);
+    glShaderSource(shader, 1, &shaderSource, nullptr);
     glCompileShader(shader);
 
     // Check for compilation errors
@@ -174,10 +200,12 @@ void API::LoadShader(unsigned int type, std::string filename)
                 break;
             case GL_GEOMETRY_SHADER: shaderType = "geometry";
                 break;
+
+            default:throw std::runtime_error("GraphicLibraries::LoadShader(). This shader type currently not supported: " + std::to_string(type));
         }
 
         char infoLog[1024];
-        glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+        glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
         throw std::runtime_error("Shader (type: " + shaderType + ", file: " + filename + ") compilation failed\n" + infoLog);
     }
 
@@ -260,7 +288,7 @@ void API::CheckErrors()
     }
 }
 
-void API::UseShaderProgram(std::string name)
+void API::UseShaderProgram(const std::string &name)
 {
     // If current shader program is the same as the requested one - do nothing
     if (currentShaderProgram != nullptr && currentShaderProgram->GetName() == name)
@@ -303,7 +331,9 @@ void API::Destroy()
     glfwTerminate();
 
     for (ShaderProgram *shaderProgram: shaderPrograms)
+    {
         delete shaderProgram;
+    }
 
     glDeleteBuffers(1, &spriteVAO);
     glDeleteBuffers(1, &spriteVBO);
@@ -312,9 +342,11 @@ void API::Destroy()
 void API::DrawSprite(Sprite *sprite)
 {
     float yShift;
+    float u = (sprite->GetCurrentFrame() % sprite->GetSpriteSheetColumnsNumber());
+    float v = sprite->GetSpriteSheetRowsNumber() - 1 - (sprite->GetCurrentFrame() / sprite->GetSpriteSheetColumnsNumber());
 
     if (coordinateSystemYInverted)
-        yShift = -sprite->GetSize().y - sprite->GetPosition().y;
+        yShift = -sprite->GetFrameSize().y - sprite->GetPosition().y;
     else
         yShift = -(innerResolution.y - sprite->GetPosition().y);
 
@@ -323,7 +355,7 @@ void API::DrawSprite(Sprite *sprite)
     model = glm::translate(model, glm::vec3(0.5f * sprite->GetPosition().x, 0.5f * sprite->GetPosition().y, 0.0f));
     model = glm::rotate(model, glm::radians(sprite->GetRotation()), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * sprite->GetPosition().x, -0.5f * sprite->GetPosition().y, 0.0f));
-    model = glm::scale(model, glm::vec3(sprite->GetSize().x, sprite->GetSize().y, 1.0f));
+    model = glm::scale(model, glm::vec3(sprite->GetFrameSize().x, sprite->GetFrameSize().y, 1.0f));
 
     glm::mat4 projection = glm::ortho(
         0.0f,
@@ -336,10 +368,12 @@ void API::DrawSprite(Sprite *sprite)
 
     glActiveTexture(sprite->GetTexture()->GetTextureUnit());
     OpenGL::API::UseShaderProgram("Sprites");
+    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("uvOffset", glm::vec2(u, v));
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("model", model);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("spriteColor", sprite->GetColor().GetShaderNormalized());
-    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image",  sprite->GetTexture()->GetTextureUnit() - GL_TEXTURE0);
+    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("image", sprite->GetTexture()->GetTextureUnit() - GL_TEXTURE0);
     OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("projection", projection);
+    OpenGL::API::GetCurrentShaderProgram()->SetUniformValue("framesNum", glm::vec2(sprite->GetSpriteSheetColumnsNumber(), sprite->GetSpriteSheetRowsNumber()));
 
     glBindVertexArray(spriteVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -365,6 +399,8 @@ void API::SetInnerResolution(int x, int y)
 
 void API::BeginFrameDraw()
 {
+    lastFrameTime = OpenGL::API::GetTime();
+
     glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glViewport(0, 0, GetInnerResolution().x, GetInnerResolution().y);
@@ -388,6 +424,9 @@ void API::EndFrameDraw()
     glfwSwapBuffers(glfwGetCurrentContext());
     glfwPollEvents();
     CheckErrors();
+
+    delta = glfwGetTime() - lastFrameTime;
+    fps = (int) (1.0 / delta);
 }
 
 void API::updateWindowResolutionCallback(GLFWwindow *window, int width, int height)
@@ -507,4 +546,84 @@ void API::SetWindowCentered()
 void API::SetShouldClose()
 {
     glfwSetWindowShouldClose(window, true);
+}
+
+float API::GetDeltaTime()
+{
+    return delta;
+}
+
+int API::GetFPS()
+{
+    return fps;
+}
+
+void API::DrawShape(void *shape)
+{
+    float yShift;
+
+    Shape *shapeToDraw = static_cast<Shape *>(shape);
+
+    if (shapeToDraw == nullptr)
+        throw std::runtime_error("Engine::drawShape(). Object is not a shape");
+
+    glm::mat4 projection = glm::ortho(
+        0.0f,
+        static_cast<float>(GetInnerResolution().x),
+        static_cast<float>(GetInnerResolution().y),
+        0.0f,
+        -1.0f,
+        1.0f
+    );
+
+    UseShaderProgram("Shapes");
+
+    if (dynamic_cast<Circle *>(shapeToDraw) != nullptr)
+    {
+        Circle *circle = dynamic_cast<Circle *>(shapeToDraw);
+
+        if (coordinateSystemYInverted)
+            yShift = -(circle->radius) - circle->position.y;
+        else
+            yShift = -(innerResolution.y - circle->position.y - circle->radius);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(circle->position.x + circle->radius, -yShift, 0.0f));
+        model = glm::scale(model, glm::vec3(circle->radius, circle->radius, 1.0f));
+
+        GetCurrentShaderProgram()->SetUniformValue("pos", glm::vec2(circle->position.x + circle->radius, innerResolution.y + yShift));
+        GetCurrentShaderProgram()->SetUniformValue("model", model);
+        GetCurrentShaderProgram()->SetUniformValue("shapeType", 0);
+        GetCurrentShaderProgram()->SetUniformValue("circleRadius", circle->radius);
+    }
+    else if (dynamic_cast<Line *>(shapeToDraw) != nullptr)
+    {
+        Line *line = dynamic_cast<Line *>(shapeToDraw);
+        GetCurrentShaderProgram()->SetUniformValue("shapeType", 2);
+    }
+    else if (dynamic_cast<Rectangle *>(shapeToDraw) != nullptr)
+    {
+        Rectangle *rectangle = dynamic_cast<Rectangle *>(shapeToDraw);
+        GetCurrentShaderProgram()->SetUniformValue("shapeType", 2);
+
+        if (coordinateSystemYInverted)
+            yShift = -rectangle->size.y - rectangle->position.y;
+        else
+            yShift = -(innerResolution.y - rectangle->position.y);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(rectangle->position.x, -yShift, 0.0f));
+        model = glm::scale(model, glm::vec3(rectangle->size.x, rectangle->size.y, 1.0f));
+
+        GetCurrentShaderProgram()->SetUniformValue("model", model);
+    }
+    else
+        throw std::runtime_error("Engine::drawShape(). Unknown shape type");
+
+    GetCurrentShaderProgram()->SetUniformValue("projection", projection);
+    GetCurrentShaderProgram()->SetUniformValue("color", shapeToDraw->color.GetShaderNormalized());
+
+    glBindVertexArray(frameBufferVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }

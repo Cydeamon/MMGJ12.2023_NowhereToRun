@@ -9,6 +9,7 @@
 #include "GLFW/glfw3.h"
 #include <glm/glm.hpp>
 #include "ShaderVec4.h"
+#include "../../Math/Vector2.h"
 #include <string>
 #include <map>
 #include <stdexcept>
@@ -30,6 +31,8 @@ namespace OpenGL
         void SetUniformValue(std::string name, int value);
         void SetUniformValue(std::string name, GLuint value) { SetUniformValue(name, (int)value); }
         void SetUniformValue(std::string name, glm::mat4 value);
+        void SetUniformValue(std::string name, glm::vec2 value);
+        void SetUniformValue(std::string name, Cygine::Vector2 value);
 
         std::string GetName() const { return name; }
         unsigned int GetID() const { return id; }

@@ -81,10 +81,11 @@ void ShaderProgram::SetUniformValue(std::string name, ShaderVec4 value)
 {
     // Check errors
     if (uniforms.find(name) == uniforms.end())
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). No such uniform or not active: " + name);
+        return;
 
     int expectedType = GL_FLOAT_VEC4;
     if (getUniformType(name) != expectedType)
+    {
         throw std::runtime_error(
             "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
             name +
@@ -92,6 +93,7 @@ void ShaderProgram::SetUniformValue(std::string name, ShaderVec4 value)
             getTypeName(expectedType) +
             ", but got: " +
             getTypeName(getUniformType(name)));
+    }
 
     glUniform4f(uniforms[name], value.GetX(), value.GetY(), value.GetZ(), value.GetW());
 }
@@ -100,10 +102,11 @@ void ShaderProgram::SetUniformValue(std::string name, float value)
 {
     // Check errors
     if (uniforms.find(name) == uniforms.end())
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). No such uniform or not active: " + name);
+        return;
 
     int expectedType = GL_FLOAT;
     if (getUniformType(name) != expectedType)
+    {
         throw std::runtime_error(
             "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
             name +
@@ -111,6 +114,7 @@ void ShaderProgram::SetUniformValue(std::string name, float value)
             getTypeName(expectedType) +
             ", but got: " +
             getTypeName(getUniformType(name)));
+    }
 
     // Set value
     glUniform1f(uniforms[name], value);
@@ -120,7 +124,7 @@ void OpenGL::ShaderProgram::SetUniformValue(std::string name, int value)
 {
     // Check errors
     if (uniforms.find(name) == uniforms.end())
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). No such uniform or not active: " + name);
+        return;
 
     int expectedTypes[] = {GL_INT, GL_SAMPLER_2D};
     bool found = false;
@@ -160,11 +164,11 @@ void ShaderProgram::SetUniformValue(std::string name, glm::mat4 value)
 {
     // Check errors
     if (uniforms.find(name) == uniforms.end())
-        throw std::runtime_error("ShaderProgram::SetUniformValue(). No such uniform or not active: " + name);
-
+        return;
 
     int expectedType = GL_FLOAT_MAT4;
     if (getUniformType(name) != expectedType)
+    {
         throw std::runtime_error(
             "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
             name +
@@ -172,9 +176,37 @@ void ShaderProgram::SetUniformValue(std::string name, glm::mat4 value)
             getTypeName(expectedType) +
             ", but got: " +
             getTypeName(getUniformType(name)));
+    }
 
 
     glUniformMatrix4fv(uniforms[name], 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void ShaderProgram::SetUniformValue(std::string name, glm::vec2 value)
+{
+    // Check errors
+    if (uniforms.find(name) == uniforms.end())
+        throw std::runtime_error("ShaderProgram::SetUniformValue(). Invalid uniform name: " + name);
+
+    int expectedType = GL_FLOAT_VEC2;
+    if (getUniformType(name) != expectedType)
+    {
+        throw std::runtime_error(
+            "ShaderProgram::SetUniformValue(). Invalid uniform type: " +
+            name +
+            ". Expected: " +
+            getTypeName(expectedType) +
+            ", but got: " +
+            getTypeName(getUniformType(name))
+        );
+    }
+
+    glUniform2f(uniforms[name], value.x, value.y);
+}
+
+void ShaderProgram::SetUniformValue(std::string name, Cygine::Vector2 value)
+{
+    SetUniformValue(name, glm::vec2(value.x, value.y));
 }
 
 GLenum ShaderProgram::getUniformType(const std::string &name)
@@ -285,4 +317,3 @@ std::string ShaderProgram::getTypeName(GLenum type)
         default: return "Unknown";
     }
 }
-

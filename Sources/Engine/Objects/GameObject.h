@@ -23,9 +23,9 @@ public:
     void SetVelocity(Cygine::Vector2 velocity) { this->velocity = velocity; }
 
 protected:
-    Cygine::Vector2 position;
-    Cygine::Vector2 direction;
-    Cygine::Vector2 velocity;
+    Cygine::Vector2 position = Cygine::Vector2::Zero;
+    Cygine::Vector2 direction = Cygine::Vector2::Zero;
+    Cygine::Vector2 velocity = Cygine::Vector2::Zero;
 };
 
 

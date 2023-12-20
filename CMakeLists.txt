@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 23)
-project(NowhereToRun VERSION 0.2.0)
+project(NowhereToRun VERSION 0.1.0)
 set(PROJECT_LABEL "Nowhere To Run")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../)
 
@@ -43,6 +43,9 @@ add_executable(
     Sources/Game/Menu/Menu.h
     Sources/Game/Menu/MenuOption.cpp
     Sources/Game/Menu/MenuOption.h
+    Sources/Game/Player.cpp
+    Sources/Game/Player.h
+    Sources/Engine/Shapes.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_${CMAKE_BUILD_TYPE}")
