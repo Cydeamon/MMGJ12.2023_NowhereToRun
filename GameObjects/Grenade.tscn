@@ -1,0 +1,99 @@
+[gd_scene load_steps=9 format=3 uid="uid://h4ltixpxdvap"]
+
+[ext_resource type="Script" path="res://Sources/Grenade.cs" id="1_qpy7k"]
+[ext_resource type="Texture2D" uid="uid://d0dhupyx6doib" path="res://Assets/Grenade.png" id="2_geknq"]
+[ext_resource type="Texture2D" uid="uid://bisapkdjb4fet" path="res://Assets/Blast.png" id="3_5wbb4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j7drs"]
+size = Vector2(2, 2)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_unxff"]
+radius = 24.0
+
+[sub_resource type="Animation" id="Animation_n8ru5"]
+resource_name = "Blast"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Blast:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1e-05, 1e-05), Vector2(1, 1)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"OnBlast"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_ku4sh"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Blast:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1e-05, 1e-05)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_128ea"]
+_data = {
+"Blast": SubResource("Animation_n8ru5"),
+"RESET": SubResource("Animation_ku4sh")
+}
+
+[node name="Grenade" type="StaticBody2D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_qpy7k")
+minThrowPower = 50
+maxThrowPower = 500
+
+[node name="Grenade" type="Sprite2D" parent="."]
+position = Vector2(-1, -2)
+texture = ExtResource("2_geknq")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_j7drs")
+
+[node name="ExplosionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExplosionArea"]
+shape = SubResource("CircleShape2D_unxff")
+debug_color = Color(0.972549, 0, 0.435294, 0.419608)
+
+[node name="ExplosionTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+autostart = true
+
+[node name="Blast" type="Sprite2D" parent="."]
+scale = Vector2(1e-05, 1e-05)
+texture = ExtResource("3_5wbb4")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_128ea")
+}
+
+[connection signal="timeout" from="ExplosionTimer" to="." method="OnExplosionTimerTimeout"]
