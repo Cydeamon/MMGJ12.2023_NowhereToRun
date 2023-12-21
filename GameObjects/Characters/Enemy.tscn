@@ -21,6 +21,8 @@ radius = 2.0
 
 [node name="Enemy" type="StaticBody2D"]
 script = ExtResource("1_woqev")
+ShotMinTime = 1500
+ShotMaxTime = 3000
 GrenadeThrowMinTime = 5000
 GrenadeThrowMaxTime = 15000
 

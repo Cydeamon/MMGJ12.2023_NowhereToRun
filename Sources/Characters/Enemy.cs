@@ -46,7 +46,7 @@ public partial class Enemy : Character
     public override void _Ready()
     {
         base._Ready();
-        Speed -= 20;
+        Speed -= 30;
 
         if (Type == 0)
             isEmpty = true;

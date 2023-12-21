@@ -6,98 +6,99 @@ namespace NowhereToRun.Sources.Characters;
 
 public partial class Player : Character
 {
+    /****************************************************************************/
+    /********************************* Nodes ***********************************/
 
-	/****************************************************************************/
-	/********************************* Nodes ***********************************/
+    private Node2D projectileSpawnPoint;
 
-	private Node2D projectileSpawnPoint;
-	
-	/*****************************************************************************/
-	/******************************* Properties *********************************/
-	
-	
-	
-	/****************************************************************************/
-	/******************************* Methods ************************************/
+    /*****************************************************************************/
+    /******************************* Properties *********************************/
 
-	public override void _Ready()
-	{
-		base._Ready();
-		
-		// Nodes init
-		projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
-	}
-	
-	public override void _Process(double delta)
-	{
-		base._Process(delta);
-		HandleMovement();
-		HandleShooting();
-		pickAnimation();
-	}
+    [Export] private int shotCooldownTime = 1000;
+    private ulong cooldownUntil = 0;
 
-	private void HandleShooting()
-	{
-		if (Input.IsActionJustPressed("fire") && !isDead && IsGameStarted() && !IsGamePaused())
-		{
-			Projectile projectile = (Projectile) GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
-			projectile.Shooter = this;
-			projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
-			projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
-			GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
-		}
-	}
+    /****************************************************************************/
+    /******************************* Methods ************************************/
 
-	private void HandleMovement()
-	{
-		if (GetLevelIntroStatus() == LevelIntroStatus.LEVEL_STARTED)
-		{
-			if (!isDead && IsGameStarted() && !IsGamePaused())
-			{
-				moveDirection = new Vector2(
-					Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
-					Input.GetActionStrength("move_down") - Input.GetActionStrength("move_up")
-				);
-				
-			}
-		}
+    public override void _Ready()
+    {
+        base._Ready();
 
-		if (!isDead)
-		{
-			velocity = moveDirection.Normalized() * Speed;
-			MoveAndCollide(velocity * (float) delta);
-		}
-	}
+        // Nodes init
+        projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
+    }
 
-	protected override void pickAnimation()
-	{
-		string targetAnimation = "";
-		
-		if (IsGameStarted() && !IsGamePaused())
-		{
-			if (!isDead)
-			{
-				if (velocity.X > 0)
-					targetAnimation = "RunRight";
-				else if (velocity.X < 0)
-					targetAnimation = "RunLeft";
-				else if (velocity.Y != 0)
-					targetAnimation = "RunVertical";
-				
-				if (velocity == Vector2.Zero)
-					targetAnimation = "Idle";
-			}
-		}
-		
-		if (targetAnimation != characterSprite.Animation)
-			characterSprite.Play(targetAnimation);
-	}
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        HandleMovement();
+        HandleShooting();
+        pickAnimation();
+    }
 
-	public void SetDirection(Vector2 direction)
-	{	
-		if (IsGameStarted() && !IsGamePaused() && !isDead)
-		{
-			moveDirection = direction;
-		}
-	}
+    private void HandleShooting()
+    {
+        if (Input.IsActionJustPressed("fire") && !isDead && IsGameStarted() && !IsGamePaused() &&
+            GetLevelIntroStatus() == LevelIntroStatus.LEVEL_STARTED && cooldownUntil < Time.GetTicksMsec())
+        {
+            Projectile projectile = (Projectile)GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
+            projectile.Shooter = this;
+            projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+            projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
+            GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
+            cooldownUntil = Time.GetTicksMsec() + (ulong)shotCooldownTime;
+        }
+    }
+
+    private void HandleMovement()
+    {
+        if (GetLevelIntroStatus() == LevelIntroStatus.LEVEL_STARTED)
+        {
+            if (!isDead && IsGameStarted() && !IsGamePaused())
+            {
+                moveDirection = new Vector2(
+                    Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
+                    Input.GetActionStrength("move_down") - Input.GetActionStrength("move_up")
+                );
+            }
+        }
+
+        if (!isDead)
+        {
+            velocity = moveDirection.Normalized() * Speed;
+            MoveAndCollide(velocity * (float)delta);
+        }
+    }
+
+    protected override void pickAnimation()
+    {
+        string targetAnimation = "";
+
+        if (IsGameStarted() && !IsGamePaused())
+        {
+            if (!isDead)
+            {
+                if (velocity.X > 0)
+                    targetAnimation = "RunRight";
+                else if (velocity.X < 0)
+                    targetAnimation = "RunLeft";
+                else if (velocity.Y != 0)
+                    targetAnimation = "RunVertical";
+
+                if (velocity == Vector2.Zero)
+                    targetAnimation = "Idle";
+            }
+        }
+
+        if (targetAnimation != characterSprite.Animation)
+            characterSprite.Play(targetAnimation);
+    }
+
+    public void SetDirection(Vector2 direction)
+    {
+        if (IsGameStarted() && !IsGamePaused() && !isDead)
+        {
+            moveDirection = direction;
+        }
+    }
 }

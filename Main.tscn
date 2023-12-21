@@ -93,7 +93,7 @@ position = Vector2(185, 210)
 [node name="LevelStartEnemiesPoint" type="Area2D" parent="Level"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Level/LevelStartEnemiesPoint"]
-position = Vector2(188.5, 130)
+position = Vector2(188.5, 162)
 shape = SubResource("RectangleShape2D_15o62")
 
 [node name="LevelStartMessagesTimer" type="Timer" parent="Level"]

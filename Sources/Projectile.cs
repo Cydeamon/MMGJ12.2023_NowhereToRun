@@ -46,18 +46,17 @@ public partial class Projectile : Area2D
         Array<Area2D> areas = GetOverlappingAreas();
 
         // Destroy bullet on hitting wall
-        for (int i = 0; i < bodies.Count; i++)
+        foreach (Node2D body in bodies)
         {
-            if (bodies[i] is Character)
+            if (body is Character)
                 continue;
 
             QueueFree();
         }
 
         // Kill target on hitting target's HitArea
-        for (int i = 0; i < areas.Count; i++)
+        foreach (Area2D area in areas)
         {
-            Area2D area = areas[i];
             Character character = area.GetParent() as Character;
 
             if (area.Name != "HitArea")

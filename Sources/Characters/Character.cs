@@ -6,6 +6,11 @@ namespace NowhereToRun.Sources.Characters;
 
 public abstract partial class Character : StaticBody2D
 {
+    /****************************************************************************/
+    /********************************* Signals **********************************/
+    
+    [Signal] public delegate void KilledEventHandler();
+    
     /***************************************************************************/
     /********************************* Nodes ***********************************/
 
@@ -168,6 +173,7 @@ public abstract partial class Character : StaticBody2D
         {
             die();
             velocity = direction * (random.Next(275) + 25);
+            EmitSignal("Killed");
         }
     }
     
@@ -177,6 +183,7 @@ public abstract partial class Character : StaticBody2D
         {
             die();
             velocity = (GlobalPosition - explosionPosition).Normalized() * (random.Next(275) + 25);
+            EmitSignal("Killed");
         }
     }
 

@@ -22,8 +22,10 @@ public partial class Main : Node2D
     private static bool isGameStarted = false;
     private static bool isGamePaused = true;
     private int score = 0;
-    private int enemiesInitialNumber = 50;
-    private int enemiesLeft = 50;
+    private int enemiesInitialNumber = 10;
+    private int enemiesLeft = 10;
+    private int enemiesKilled = 0;
+    private int level = 1;
     [Export] private int enemySpawnTimeMin = 250;
     [Export] private int enemySpawnTimeMax = 1500;
     [Export] public float GrenadeEnemySpawnChance = 10;
@@ -51,6 +53,7 @@ public partial class Main : Node2D
     public Node2D MessageGoSprite;
     public Node2D MessageReadySprite;
     public Node2D MessageLevelCompleteSprite;
+    public Label StatusLabel;
     
     
     /***************************************************************************/
@@ -82,6 +85,7 @@ public partial class Main : Node2D
         MessageGoSprite = GetNode<Node2D>("HUD/Message/MessageGo");
         MessageReadySprite = GetNode<Node2D>("HUD/Message/MessageReady");
         MessageLevelCompleteSprite = GetNode<Node2D>("HUD/Message/MessageLevelComplete");
+        StatusLabel = GetNode<Label>("HUD/Status");
 
         // Init game
         score = 0;
@@ -118,13 +122,13 @@ public partial class Main : Node2D
     public override void _Process(double delta)
     {
         Delta = delta;
+        StatusLabel.Text = $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
+        
         HandlePauseToggle();
         HandleMusic();
         HandleFullscreenToggle();
         destroyOutOfBoundsProjectiles();
         HandleEnemiesSpawn();
-        
-        GD.Print("Level intro status: " + levelIntroStatus.ToString());
         HandleLevelIntro();
     }
 
@@ -153,7 +157,10 @@ public partial class Main : Node2D
                 if (Time.GetTicksMsec() > nextEnemySpawnTime)
                 {
                     enemiesLeft--;
-                    nextEnemySpawnTime = (ulong)random.Next(enemySpawnTimeMin, enemySpawnTimeMax) + Time.GetTicksMsec();
+                    nextEnemySpawnTime = (ulong)random.Next(
+                        levelIntroStatus != LevelIntroStatus.LEVEL_STARTED ? 1000 : enemySpawnTimeMin, 
+                        levelIntroStatus != LevelIntroStatus.LEVEL_STARTED ? 2000 : enemySpawnTimeMax
+                    ) + Time.GetTicksMsec();
 
                     int xLeft = (int)(EnemiesSpawnAreaCollision.GlobalPosition.X -
                                       EnemiesSpawnAreaCollisionShape.Size.X / 2);
@@ -173,6 +180,7 @@ public partial class Main : Node2D
                         : Enemy.EnemyType.PISTOL;
 
                     enemy.GlobalPosition = spawnPoint;
+                    enemy.Killed += OnEnemyKilled;
                     GetNode("Level/Enemies").AddChild(enemy);
                 }
             }
@@ -324,5 +332,11 @@ public partial class Main : Node2D
                 levelIntroStatus = LevelIntroStatus.LEVEL_STARTED;
             }
         }
+    }
+    
+    private void OnEnemyKilled()
+    {
+        score += 5 * level;
+        enemiesKilled++;
     }
 }
