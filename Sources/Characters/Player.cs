@@ -61,9 +61,12 @@ public partial class Player : Character
 				
 			}
 		}
-		
-		velocity = moveDirection.Normalized() * Speed;
-		MoveAndCollide(velocity * (float) delta);
+
+		if (!isDead)
+		{
+			velocity = moveDirection.Normalized() * Speed;
+			MoveAndCollide(velocity * (float) delta);
+		}
 	}
 
 	protected override void pickAnimation()

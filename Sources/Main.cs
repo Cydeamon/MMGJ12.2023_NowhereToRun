@@ -31,6 +31,7 @@ public partial class Main : Node2D
     protected readonly Random random = new Random();
     private AudioStream LevelStartMusic = GD.Load<AudioStream>("res://Assets/Music/LevelStart.wav");
     private AudioStream LevelMusic = GD.Load<AudioStream>("res://Assets/Music/Gameplay.wav");
+    private double Delta;
 
     /***************************************************************************/
     /********************************** Nodes **********************************/
@@ -116,6 +117,7 @@ public partial class Main : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        Delta = delta;
         HandlePauseToggle();
         HandleMusic();
         HandleFullscreenToggle();
@@ -133,6 +135,7 @@ public partial class Main : Node2D
             if (Math.Abs(Player.GlobalPosition.DistanceTo(LevelStartPlayerStopPoint.GlobalPosition)) < 1)
             {
                 levelIntroStatus = LevelIntroStatus.STANDING;
+                Player.SetDirection(Vector2.Zero);
             }
             else
             {
@@ -180,8 +183,16 @@ public partial class Main : Node2D
     {
         if (!isGamePaused)
         {
-            GameplayPlayer.VolumeDb = 0;
-            MenuPlayer.VolumeDb = -80;
+            if (Player.IsDead())
+            {
+                GameplayPlayer.PitchScale = (float)Mathf.Lerp(GameplayPlayer.PitchScale, 0.5f, 2f * Delta);
+            }
+            else
+            {
+                GameplayPlayer.PitchScale = 1f;
+                GameplayPlayer.VolumeDb = 0;
+                MenuPlayer.VolumeDb = -80;   
+            }
         }
         else
         {
