@@ -17,7 +17,7 @@ size = Vector2(1, 2)
 radius = 5.09902
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_sab5q"]
-radius = 1.5
+radius = 2.0
 
 [node name="Enemy" type="StaticBody2D"]
 script = ExtResource("1_woqev")
@@ -57,7 +57,7 @@ shape = SubResource("CircleShape2D_yvpw1")
 debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 
 [node name="SmallShape" type="CollisionShape2D" parent="BloodDropArea"]
-position = Vector2(3, -4)
+position = Vector2(4, -4)
 shape = SubResource("CircleShape2D_sab5q")
 debug_color = Color(0.992157, 0.0823529, 0, 0.831373)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=19 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -27,43 +27,12 @@ size = Vector2(150, 12)
 
 [sub_resource type="ImageTexture" id="ImageTexture_qluo8"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_15o62"]
+size = Vector2(191, 20)
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_ndi6g")
-
-[node name="HUD" type="Node2D" parent="."]
-visible = false
-
-[node name="Message" type="Sprite2D" parent="HUD"]
-position = Vector2(190, 115)
-texture = ExtResource("4_n3efa")
-
-[node name="MessageGo" type="Sprite2D" parent="HUD/Message"]
-visible = false
-texture = ExtResource("5_7yk7l")
-
-[node name="MessageLevelComplete" type="Sprite2D" parent="HUD/Message"]
-visible = false
-texture = ExtResource("6_8cnjt")
-
-[node name="MessageReady" type="Sprite2D" parent="HUD/Message"]
-texture = ExtResource("7_6kqek")
-
-[node name="Score label" type="Label" parent="HUD"]
-offset_top = -2.0
-offset_right = 117.0
-offset_bottom = 21.0
-theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
-theme_override_fonts/font = ExtResource("6_de1lf")
-text = "Score: 2000"
-
-[node name="Enemies label" type="Label" parent="HUD"]
-offset_left = 100.0
-offset_top = -2.0
-offset_right = 304.0
-offset_bottom = 21.0
-theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
-theme_override_fonts/font = ExtResource("6_de1lf")
-text = "Enemies remaining: 47"
+GrenadeEnemySpawnChance = 25.0
 
 [node name="Level" type="Node2D" parent="."]
 
@@ -104,7 +73,7 @@ debug_color = Color(0.643137, 0.521569, 0, 0.419608)
 [node name="EnemiesSpawnArea" type="Area2D" parent="Level"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Level/EnemiesSpawnArea"]
-position = Vector2(188, 222)
+position = Vector2(189, 222)
 shape = SubResource("RectangleShape2D_yyex2")
 debug_color = Color(1, 0, 0.0980392, 0.419608)
 
@@ -117,11 +86,29 @@ texture = SubResource("ImageTexture_qluo8")
 
 [node name="Player" parent="Level" instance=ExtResource("10_alkds")]
 unique_name_in_owner = true
-position = Vector2(181, 68)
+position = Vector2(185, 210)
 
 [node name="Projectiles" type="Node2D" parent="Level"]
 
-[node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
+[node name="LevelStartEnemiesPoint" type="Area2D" parent="Level"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Level/LevelStartEnemiesPoint"]
+position = Vector2(188.5, 130)
+shape = SubResource("RectangleShape2D_15o62")
+
+[node name="LevelStartMessagesTimer" type="Timer" parent="Level"]
+wait_time = 1.35
+one_shot = true
+
+[node name="LevelStartBeforeMessagesTimer" type="Timer" parent="Level"]
+wait_time = 5.25
+one_shot = true
+
+[node name="LevelStartPlayerStopPoint" type="Node2D" parent="Level"]
+position = Vector2(189, 64)
+
+[node name="LevelStartPlayerPoint" type="Node2D" parent="Level"]
+position = Vector2(189, 208)
 
 [node name="MenuPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("12_2ghfv")
@@ -130,7 +117,40 @@ autoplay = true
 [node name="GameplayPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("13_btshr")
 
+[node name="HUD" type="Node2D" parent="."]
+
+[node name="Message" type="Sprite2D" parent="HUD"]
+visible = false
+position = Vector2(190, 115)
+texture = ExtResource("4_n3efa")
+
+[node name="MessageGo" type="Sprite2D" parent="HUD/Message"]
+visible = false
+texture = ExtResource("5_7yk7l")
+
+[node name="MessageLevelComplete" type="Sprite2D" parent="HUD/Message"]
+visible = false
+texture = ExtResource("6_8cnjt")
+
+[node name="MessageReady" type="Sprite2D" parent="HUD/Message"]
+visible = false
+texture = ExtResource("7_6kqek")
+
+[node name="Status" type="Label" parent="HUD"]
+offset_top = -2.0
+offset_right = 384.0
+offset_bottom = 14.0
+theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
+theme_override_fonts/font = ExtResource("6_de1lf")
+text = "Level: 1    Score: 2000    Enemies remaining: 47"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
+
 [connection signal="body_entered" from="Level/EnemiesSpawnArea" to="." method="OnEnemyEntersSpawnArea"]
+[connection signal="timeout" from="Level/LevelStartMessagesTimer" to="." method="CycleIntroMessages"]
+[connection signal="timeout" from="Level/LevelStartBeforeMessagesTimer" to="." method="ShowReadyMessage"]
+[connection signal="finished" from="GameplayPlayer" to="." method="OnGameplayMusicFinished"]
 [connection signal="Exit" from="Menu" to="." method="Exit"]
 [connection signal="StartGame" from="Menu" to="." method="StartGame"]
-[connection signal="finished" from="GameplayPlayer" to="." method="OnGameplayMusicFinished"]

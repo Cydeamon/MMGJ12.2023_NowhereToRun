@@ -9,6 +9,16 @@ public partial class Main : Node2D
     /***************************************************************************/
     /***************************** Game properties *****************************/
 
+    public enum LevelIntroStatus
+    {
+        LEVEL_STARTED,
+        RUNNING_UP,
+        STANDING,
+        MESSAGE_READY,
+        MESSAGE_GO
+    }
+    
+    private static LevelIntroStatus levelIntroStatus;
     private static bool isGameStarted = false;
     private static bool isGamePaused = true;
     private int score = 0;
@@ -34,13 +44,20 @@ public partial class Main : Node2D
     public Area2D EnemiesSpawnArea;
     public CollisionShape2D EnemiesSpawnAreaCollision;
     public RectangleShape2D EnemiesSpawnAreaCollisionShape;
-
-
+    public Player Player;
+    public Node2D LevelStartPlayerStopPoint;
+    public Node2D MessageSprite;
+    public Node2D MessageGoSprite;
+    public Node2D MessageReadySprite;
+    public Node2D MessageLevelCompleteSprite;
+    
+    
     /***************************************************************************/
     /***************************** Global game data ****************************/
 
     public static bool IsGameStarted() => isGameStarted;
     public static bool IsGamePaused() => isGamePaused;
+    public static LevelIntroStatus GetLevelIntroStatus() => levelIntroStatus;
 
     /***************************************************************************/
     /********************************* Methods *********************************/
@@ -58,6 +75,12 @@ public partial class Main : Node2D
         EnemiesSpawnArea = GetNode<Area2D>("Level/EnemiesSpawnArea");
         EnemiesSpawnAreaCollision = EnemiesSpawnArea.GetChild<CollisionShape2D>(0);
         EnemiesSpawnAreaCollisionShape = EnemiesSpawnArea.GetChild<CollisionShape2D>(0).Shape as RectangleShape2D;
+        Player = GetNode<Player>("Level/Player");
+        LevelStartPlayerStopPoint = GetNode<Node2D>("Level/LevelStartPlayerStopPoint");
+        MessageSprite = GetNode<Node2D>("HUD/Message");
+        MessageGoSprite = GetNode<Node2D>("HUD/Message/MessageGo");
+        MessageReadySprite = GetNode<Node2D>("HUD/Message/MessageReady");
+        MessageLevelCompleteSprite = GetNode<Node2D>("HUD/Message/MessageLevelComplete");
 
         // Init game
         score = 0;
@@ -97,8 +120,25 @@ public partial class Main : Node2D
         HandleMusic();
         HandleFullscreenToggle();
         destroyOutOfBoundsProjectiles();
-
         HandleEnemiesSpawn();
+        
+        GD.Print("Level intro status: " + levelIntroStatus.ToString());
+        HandleLevelIntro();
+    }
+
+    private void HandleLevelIntro()
+    {
+        if (levelIntroStatus == LevelIntroStatus.RUNNING_UP)
+        {
+            if (Math.Abs(Player.GlobalPosition.DistanceTo(LevelStartPlayerStopPoint.GlobalPosition)) < 1)
+            {
+                levelIntroStatus = LevelIntroStatus.STANDING;
+            }
+            else
+            {
+                Player.SetDirection(LevelStartPlayerStopPoint.GlobalPosition - Player.GlobalPosition);
+            }
+        }
     }
 
     private void HandleEnemiesSpawn()
@@ -182,6 +222,10 @@ public partial class Main : Node2D
     {
         if (!isGameStarted)
         {
+            levelIntroStatus = LevelIntroStatus.RUNNING_UP;
+            GetNode<Timer>("Level/LevelStartBeforeMessagesTimer").Start();
+            Player.GlobalPosition = GetNode<Node2D>("Level/LevelStartPlayerPoint").GlobalPosition;
+            
             TextureButton startButton = GetNode<TextureButton>("Menu/MenuOptions/StartGame");
             Texture2D continueButtonNormal = GD.Load<Texture2D>("res://Assets/Menu/OptionContinue.png");
             Texture2D continueButtonPressed = GD.Load<Texture2D>("res://Assets/Menu/OptionContinueSelected.png");
@@ -213,7 +257,6 @@ public partial class Main : Node2D
 
     private void OnGameplayMusicFinished()
     {
-        GD.Print("FINISHED");
         if (GameplayPlayer.Stream == LevelStartMusic)
         {
             GameplayPlayer.Stream = LevelMusic;
@@ -228,6 +271,46 @@ public partial class Main : Node2D
             if (enemy.IsEmpty())
             {
                 enemy.QueueFree();
+            }
+        }
+    }
+    
+    private void ShowReadyMessage()
+    {
+        levelIntroStatus = LevelIntroStatus.MESSAGE_READY;
+        MessageSprite.Show();
+        MessageReadySprite.Show();
+        GetNode<Timer>("Level/LevelStartMessagesTimer").Start();
+    }
+
+    private void CycleIntroMessages()
+    {
+        if (levelIntroStatus == LevelIntroStatus.MESSAGE_READY)
+        {
+            GetNode<Timer>("Level/LevelStartMessagesTimer").Start();
+            
+            if (MessageReadySprite.Visible)
+            {
+                MessageReadySprite.Hide();
+            }
+            else
+            {
+                levelIntroStatus = LevelIntroStatus.MESSAGE_GO;
+                MessageGoSprite.Show();
+            }
+        }
+        else
+        if (levelIntroStatus == LevelIntroStatus.MESSAGE_GO)
+        {
+            if (MessageGoSprite.Visible)
+            {
+                GetNode<Timer>("Level/LevelStartMessagesTimer").Start();
+                MessageGoSprite.Hide();
+                MessageSprite.Hide();
+            }
+            else
+            {
+                levelIntroStatus = LevelIntroStatus.LEVEL_STARTED;
             }
         }
     }

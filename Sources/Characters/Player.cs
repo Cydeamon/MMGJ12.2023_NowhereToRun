@@ -50,16 +50,20 @@ public partial class Player : Character
 
 	private void HandleMovement()
 	{
-		if (!isDead && IsGameStarted() && !IsGamePaused())
+		if (GetLevelIntroStatus() == LevelIntroStatus.LEVEL_STARTED)
 		{
-			moveDirection = new Vector2(
-				Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
-				Input.GetActionStrength("move_down") - Input.GetActionStrength("move_up")
-			);
-			
-			velocity = moveDirection * Speed;
-			MoveAndCollide(velocity * (float) delta);
+			if (!isDead && IsGameStarted() && !IsGamePaused())
+			{
+				moveDirection = new Vector2(
+					Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
+					Input.GetActionStrength("move_down") - Input.GetActionStrength("move_up")
+				);
+				
+			}
 		}
+		
+		velocity = moveDirection.Normalized() * Speed;
+		MoveAndCollide(velocity * (float) delta);
 	}
 
 	protected override void pickAnimation()
@@ -84,5 +88,13 @@ public partial class Player : Character
 		
 		if (targetAnimation != characterSprite.Animation)
 			characterSprite.Play(targetAnimation);
+	}
+
+	public void SetDirection(Vector2 direction)
+	{	
+		if (IsGameStarted() && !IsGamePaused() && !isDead)
+		{
+			moveDirection = direction;
+		}
 	}
 }
