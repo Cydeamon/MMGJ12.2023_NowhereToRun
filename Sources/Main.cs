@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Godot;
-using Godot.Collections;
 using NowhereToRun.Sources.Characters;
 
 namespace NowhereToRun.Sources;
@@ -29,10 +29,31 @@ public partial class Main : Node2D
         TRANSITION_TO_NEXT_LEVEL
     }
 
+    private struct HighScoreEntry
+    {
+        public string Name;
+        public int Score;
+
+        public HighScoreEntry(string name, string score)
+        {
+            Name = name;
+            Score = score.ToInt();
+        }
+
+        public HighScoreEntry(string name, int score)
+        {
+            Name = name;
+            Score = score;
+        }
+    }
+    
     private static LevelIntroStatus levelIntroStatus;
     private static LevelOutroStatus levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
     private static bool isGameStarted = false;
     private static bool isGamePaused = true;
+    private bool highScoreNameInput = false;
+    private int highScoreNameLetter = 0;
+    private string highScoreName = "";
     private int score = 0;
     private int enemiesInitialNumber = 10;
     private int enemiesLeft = 10;
@@ -44,13 +65,15 @@ public partial class Main : Node2D
     private ulong nextEnemySpawnTime;
     protected readonly Random random = new Random();
     private AudioStream LevelStartMusic = GD.Load<AudioStream>("res://Assets/Music/LevelStart.wav");
-    private AudioStream LevelMusic = GD.Load<AudioStream>("res://Assets/Music/Gameplay.wav");
+    private AudioStream LevelMusic1 = GD.Load<AudioStream>("res://Assets/Music/Gameplay1.wav");
+    private AudioStream LevelMusic2 = GD.Load<AudioStream>("res://Assets/Music/Gameplay2.wav");
     private double Delta;
+    private List<HighScoreEntry> highScores;
 
     /***************************************************************************/
     /********************************** Nodes **********************************/
 
-    public Control Menu;
+    public Menu Menu;
     public Node2D Level;
     public Node2D HUD;
     public Node ProjectilesContainer;
@@ -82,7 +105,7 @@ public partial class Main : Node2D
     public override void _Ready()
     {
         // Initialize nodes
-        Menu = GetNode<Control>("Menu");
+        Menu = GetNode<Menu>("Menu");
         Level = GetNode<Node2D>("Level");
         HUD = GetNode<Node2D>("HUD");
         ProjectilesContainer = GetNode("Level/Projectiles");
@@ -99,6 +122,9 @@ public partial class Main : Node2D
         MessageLevelCompleteSprite = GetNode<Node2D>("HUD/Message/MessageLevelComplete");
         MessageDeadSprite = GetNode<Node2D>("HUD/Message/MessageDead");
         StatusLabel = GetNode<Label>("HUD/Status");
+
+        // Init variables
+        highScores = new List<HighScoreEntry>();
 
         // Initialize game
         score = 0;
@@ -121,6 +147,8 @@ public partial class Main : Node2D
 
             GetViewport().GetWindow().MoveToCenter();
         }
+        
+        GetViewport().GetWindow().Mode = Window.ModeEnum.ExclusiveFullscreen;
 
         // Create image for BloodDrawSprite
         Image bloodDrawSpriteImage = Image.Create(
@@ -190,6 +218,8 @@ public partial class Main : Node2D
 
                 names.AddText("\n" + paramName);
                 scores.AddText("\n" + paramValue);
+
+                highScores.Add(new HighScoreEntry(paramName, paramValue));
             }
         }
     }
@@ -198,19 +228,102 @@ public partial class Main : Node2D
     public override void _Process(double delta)
     {
         Delta = delta;
-
-        HandlePauseToggle();
         HandleMusic();
-        HandleFullscreenToggle();
-        destroyOutOfBoundsProjectiles();
-        HandleEnemiesSpawn();
-        HandleLevelIntro();
-
-        if (!Player.IsDead())
+        
+        if (!highScoreNameInput)
         {
-            StatusLabel.Text =
-                $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
+            HandlePauseToggle();
+            HandleFullscreenToggle();
+            destroyOutOfBoundsProjectiles();
+            HandleEnemiesSpawn();
+            HandleLevelIntro();
+
+            if (!Player.IsDead())
+            {
+                StatusLabel.Text =
+                    $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
+            }
         }
+        else
+        {
+            HandleHighScoreNameInput();
+        }
+    }
+
+    private void HandleHighScoreNameInput()
+    {
+        if (Input.IsActionJustPressed("ui_cancel"))
+        {
+            highScoreNameInput = false;
+            GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
+            GameReset();
+            Menu.Show();
+        }
+        else
+        {
+            GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").GrabFocus();
+
+            if (Input.IsActionJustPressed("ui_accept"))
+            {
+                string name = GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").Text;
+
+                if (name.Length == 3)
+                {
+                    highScoreNameInput = false;
+                    highScores.Add(new HighScoreEntry(name, score));
+                    SortHighScores();
+                    SaveHighScores();
+                    UpdateHighScoresTable();
+                    highScoreNameInput = false;
+                    GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
+                    GameReset();
+                    Menu.Show();
+                    Menu.ActivateSubmenu("HighScores");
+                }
+            }
+        }
+    }
+
+    private void UpdateHighScoresTable()
+    {
+        RichTextLabel names = GetNode<RichTextLabel>("Menu/Submenus/HighScores/HBoxContainer/Names");
+        RichTextLabel scores = GetNode<RichTextLabel>("Menu/Submenus/HighScores/HBoxContainer/Scores");
+        names.Text = "";
+        scores.Text = "";
+        
+        for (int i = 0; i < highScores.Count; i++)
+        {
+            names.Text += highScores[i].Name;
+            
+            if (i != highScores.Count - 1)
+                names.Text += "\n";
+        }
+        
+        for (int i = 0; i < highScores.Count; i++)
+        {
+            scores.Text += highScores[i].Score;
+            
+            if (i != highScores.Count - 1)
+                scores.Text += "\n";    
+        }
+    }
+
+    private void SaveHighScores()
+    {
+        string filePath = "NowhereToRun.ini";
+        using StreamWriter writer = new StreamWriter(filePath);
+        writer.WriteLine("[HIGHSCORES]");
+
+        for (int i = 0; i < highScores.Count; i++)
+            writer.WriteLine($"{highScores[i].Name}={highScores[i].Score}");
+    }
+
+    private void SortHighScores()
+    {
+        highScores.Sort((a, b) => b.Score.CompareTo(a.Score));
+        
+        if (highScores.Count > 8)
+            highScores.RemoveRange(8, highScores.Count - 8);
     }
 
     private void HandleLevelIntro()
@@ -272,7 +385,7 @@ public partial class Main : Node2D
     private void OnEnemyRunAway()
     {
         enemiesKilled++;
-        
+
         if (enemiesInitialNumber - enemiesKilled == 0)
         {
             MessageSprite.Show();
@@ -367,7 +480,7 @@ public partial class Main : Node2D
 
         levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
         levelIntroStatus = LevelIntroStatus.RUNNING_UP;
-        
+
         MessageSprite.Hide();
         foreach (Node2D node in MessageSprite.GetChildren())
             node.Hide();
@@ -423,7 +536,17 @@ public partial class Main : Node2D
     {
         if (GameplayPlayer.Stream == LevelStartMusic)
         {
-            GameplayPlayer.Stream = LevelMusic;
+            GameplayPlayer.Stream = LevelMusic1;
+            GameplayPlayer.Play();
+        }
+        else if (GameplayPlayer.Stream == LevelMusic1)
+        {
+            GameplayPlayer.Stream = LevelMusic2;
+            GameplayPlayer.Play();
+        }
+        else if (GameplayPlayer.Stream == LevelMusic2)
+        {
+            GameplayPlayer.Stream = LevelMusic1;
             GameplayPlayer.Play();
         }
     }
@@ -487,23 +610,25 @@ public partial class Main : Node2D
         MessageDeadSprite.Show();
 
         // Check high scores
-        RichTextLabel scoresLabel = GetNode<RichTextLabel>("Menu/Submenus/HighScores/HBoxContainer/Scores");
-        string[] scores = scoresLabel.Text.Split("\n");
-        bool newHighScore = false; 
+        bool newHighScore = false;
 
-        foreach (string tempScore in scores)
+        foreach (HighScoreEntry entry in highScores)
         {
-            if (tempScore.ToInt() > score)
+            if (entry.Score < score)
             {
                 newHighScore = true;
                 break;
             }
         }
-        
+
         // If there's new high score - show message to enter name
         if (newHighScore)
         {
+            GetNode<Label>("HUD/NewHighscoreBlock/Score").Text = $"{score} - NEW HIGH SCORE!";
+            GetNode<Label>("HUD/NewHighscoreBlock/EnterName").Text = $"ENTER YOUR NAME: ";
             GetNode<Node2D>("HUD/NewHighscoreBlock").Show();
+            GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").GrabFocus();
+            highScoreNameInput = true;
         }
     }
 
@@ -532,7 +657,6 @@ public partial class Main : Node2D
         }
         else if (levelOutroStatus == LevelOutroStatus.FINISHED)
         {
-            
             GameReset(false);
             level += 1;
             enemiesKilled = 0;
@@ -550,7 +674,7 @@ public partial class Main : Node2D
             Player.SetDirection(Vector2.Up);
 
             GameplayPlayer.Stream = LevelStartMusic;
-            GameplayPlayer.Play();  
+            GameplayPlayer.Play();
         }
     }
 }

@@ -5,13 +5,17 @@ public partial class Menu : Control
 {
     /***************************************************************************/
     /********************************* Signals *********************************/
-    [Signal] public delegate void StartGameEventHandler();
+    [Signal]
+    public delegate void StartGameEventHandler();
 
-    [Signal] public delegate void HighScoresEventHandler();
+    [Signal]
+    public delegate void HighScoresEventHandler();
 
-    [Signal] public delegate void CreditsEventHandler();
+    [Signal]
+    public delegate void CreditsEventHandler();
 
-    [Signal] public delegate void ExitEventHandler();
+    [Signal]
+    public delegate void ExitEventHandler();
 
 
     /***************************************************************************/
@@ -69,5 +73,15 @@ public partial class Menu : Control
     public void OnExitPressed()
     {
         EmitSignal("Exit");
+    }
+
+    public void ActivateSubmenu(string name)
+    {
+        TextureButton menuOption = GetNode<TextureButton>("MenuOptions/" + name);
+        Control submenu = GetNode<Control>("Submenus/" + menuOption.Name);
+        ActiveSubmenu = submenu;
+        submenu.Show();
+        GetNode<Control>("MenuOptions").Hide();
+        GetNode<Node2D>("InfoLabel").Hide();
     }
 }
