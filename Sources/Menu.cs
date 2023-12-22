@@ -49,6 +49,7 @@ public partial class Menu : Control
             ActiveSubmenu = submenu;
             submenu.Show();
             GetNode<Control>("MenuOptions").Hide();
+            GetNode<Node2D>("InfoLabel").Hide();
         }
     }
 
@@ -57,6 +58,7 @@ public partial class Menu : Control
         ActiveSubmenu.Hide();
         ActiveSubmenu = null;
         GetNode<Control>("MenuOptions").Show();
+        GetNode<Node2D>("InfoLabel").Show();
     }
 
     public void OnStartGamePressed()
