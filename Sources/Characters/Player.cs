@@ -36,7 +36,7 @@ public partial class Player : Character
         HandleMovement();
         HandleShooting();
         pickAnimation();
-        
+
         // Rotate the shot direction to mouse position
         if (!IsGameStarted() || IsDead() || GetLevelIntroStatus() != LevelIntroStatus.LEVEL_STARTED)
             shotDirectionView.Hide();
@@ -115,5 +115,7 @@ public partial class Player : Character
         isDead = false;
         characterSprite.Show();
         deathSprite.Hide();
+        hitArea.Monitoring = true;
+        GetNode<CollisionShape2D>("Collision").Disabled = false;
     }
 }

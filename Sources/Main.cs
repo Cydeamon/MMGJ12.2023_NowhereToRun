@@ -532,13 +532,7 @@ public partial class Main : Node2D
         }
         else if (levelOutroStatus == LevelOutroStatus.FINISHED)
         {
-            MessageSprite.Hide();
-            MessageLevelCompleteSprite.Hide();
-            levelOutroStatus = LevelOutroStatus.TRANSITION_TO_NEXT_LEVEL;
-            GetNode<Timer>("Level/EndLevelTimer").Start();
-        }
-        else if (levelOutroStatus == LevelOutroStatus.TRANSITION_TO_NEXT_LEVEL)
-        {
+            
             GameReset(false);
             level += 1;
             enemiesKilled = 0;
@@ -556,7 +550,7 @@ public partial class Main : Node2D
             Player.SetDirection(Vector2.Up);
 
             GameplayPlayer.Stream = LevelStartMusic;
-            GameplayPlayer.Play();
+            GameplayPlayer.Play();  
         }
     }
 }
