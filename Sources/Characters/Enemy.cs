@@ -7,6 +7,11 @@ namespace NowhereToRun.Sources.Characters;
 public partial class Enemy : Character
 {
     /****************************************************************************/
+    /********************************** Signals *********************************/
+    
+    [Signal] public delegate void EnemyRunAwayEventHandler();
+    
+    /****************************************************************************/
     /********************************** Enums ***********************************/
 
     [Flags]
@@ -168,6 +173,7 @@ public partial class Enemy : Character
 
                     if (targetPoint == GlobalPosition)
                     {
+                        EmitSignal("EnemyRunAway");
                         QueueFree();
                         return;
                     }

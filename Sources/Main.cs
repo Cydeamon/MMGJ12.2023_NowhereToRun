@@ -262,9 +262,22 @@ public partial class Main : Node2D
 
                     enemy.GlobalPosition = spawnPoint;
                     enemy.Killed += OnEnemyKilled;
+                    enemy.EnemyRunAway += OnEnemyRunAway;
                     GetNode("Level/Enemies").AddChild(enemy);
                 }
             }
+        }
+    }
+
+    private void OnEnemyRunAway()
+    {
+        enemiesKilled++;
+        
+        if (enemiesInitialNumber - enemiesKilled == 0)
+        {
+            MessageSprite.Show();
+            MessageLevelCompleteSprite.Show();
+            GetNode<Timer>("Level/EndLevelTimer").Start();
         }
     }
 
@@ -354,6 +367,10 @@ public partial class Main : Node2D
 
         levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
         levelIntroStatus = LevelIntroStatus.RUNNING_UP;
+        
+        MessageSprite.Hide();
+        foreach (Node2D node in MessageSprite.GetChildren())
+            node.Hide();
 
         Player.Reset();
     }
@@ -418,7 +435,7 @@ public partial class Main : Node2D
             if (enemy.IsEmpty())
             {
                 enemy.QueueFree();
-                enemiesLeft--;
+                enemiesKilled++;
             }
         }
     }
