@@ -124,7 +124,7 @@ public abstract partial class Character : StaticBody2D
         bleedingTimer.Start();
     }
 
-    protected void stopBleeding()
+    public void StopBleeding()
     {
         isBleeding = false;
     }

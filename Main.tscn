@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=20 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -10,6 +10,7 @@
 [ext_resource type="FontFile" uid="uid://bgpphkgxfmgkg" path="res://Assets/Fonts/Arial.fnt" id="6_de1lf"]
 [ext_resource type="Texture2D" uid="uid://dmflu2nwam5li" path="res://Assets/MessageReady.png" id="7_6kqek"]
 [ext_resource type="PackedScene" uid="uid://sr3gwuqoyhhy" path="res://GameObjects/Characters/Player.tscn" id="10_alkds"]
+[ext_resource type="Texture2D" uid="uid://cy6ladst4qp0c" path="res://Assets/MessageDead.png" id="10_srpkn"]
 [ext_resource type="AudioStream" uid="uid://cocaqa537k010" path="res://Assets/Music/Menu.wav" id="12_2ghfv"]
 [ext_resource type="AudioStream" uid="uid://wv44w3m1pbse" path="res://Assets/Music/LevelStart.wav" id="13_btshr"]
 
@@ -36,7 +37,7 @@ GrenadeEnemySpawnChance = 25.0
 
 [node name="Level" type="Node2D" parent="."]
 
-[node name="LevelBgWallDestoyed" type="Sprite2D" parent="Level"]
+[node name="LevelBgWallDestroyed" type="Sprite2D" parent="Level"]
 visible = false
 position = Vector2(192, 108)
 texture = ExtResource("3_syrs2")
@@ -96,6 +97,10 @@ position = Vector2(185, 210)
 position = Vector2(188.5, 162)
 shape = SubResource("RectangleShape2D_15o62")
 
+[node name="EndLevelTimer" type="Timer" parent="Level"]
+wait_time = 2.0
+one_shot = true
+
 [node name="LevelStartMessagesTimer" type="Timer" parent="Level"]
 wait_time = 1.35
 one_shot = true
@@ -119,6 +124,25 @@ stream = ExtResource("13_btshr")
 
 [node name="HUD" type="Node2D" parent="."]
 
+[node name="ColorRect2" type="ColorRect" parent="HUD"]
+offset_right = 384.0
+offset_bottom = 18.0
+color = Color(0.227451, 0.0509804, 0.0588235, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="HUD/ColorRect2"]
+layout_mode = 0
+offset_top = -1.0
+offset_right = 384.0
+offset_bottom = 17.0
+color = Color(0.0705882, 0.0392157, 0.0980392, 1)
+
+[node name="ColorRect" type="ColorRect" parent="HUD/ColorRect2"]
+layout_mode = 0
+offset_top = 18.0
+offset_right = 384.0
+offset_bottom = 20.0
+color = Color(0.0705882, 0.0392157, 0.0980392, 1)
+
 [node name="Message" type="Sprite2D" parent="HUD"]
 visible = false
 position = Vector2(190, 115)
@@ -136,19 +160,60 @@ texture = ExtResource("6_8cnjt")
 visible = false
 texture = ExtResource("7_6kqek")
 
+[node name="MessageDead" type="Sprite2D" parent="HUD/Message"]
+visible = false
+texture = ExtResource("10_srpkn")
+
 [node name="Status" type="Label" parent="HUD"]
-offset_top = -2.0
 offset_right = 384.0
-offset_bottom = 14.0
+offset_bottom = 16.0
 theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
 theme_override_fonts/font = ExtResource("6_de1lf")
 text = "Level: 1    Score: 2000    Enemies remaining: 47"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="NewHighscoreBlock" type="Node2D" parent="HUD"]
+visible = false
+
+[node name="ColorRect2" type="ColorRect" parent="HUD/NewHighscoreBlock"]
+offset_left = 87.0
+offset_top = 52.0
+offset_right = 289.0
+offset_bottom = 83.0
+color = Color(0.368627, 0.25098, 0.411765, 1)
+
+[node name="ColorRect" type="ColorRect" parent="HUD/NewHighscoreBlock"]
+offset_left = 88.0
+offset_top = 53.0
+offset_right = 288.0
+offset_bottom = 82.0
+color = Color(0.0705882, 0.0392157, 0.0980392, 1)
+
+[node name="Score" type="Label" parent="HUD/NewHighscoreBlock"]
+offset_left = 48.0
+offset_top = 53.0
+offset_right = 329.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
+theme_override_fonts/font = ExtResource("6_de1lf")
+text = "0000000 - NEW HIGHSCORE!"
+horizontal_alignment = 1
+
+[node name="EnterName" type="Label" parent="HUD/NewHighscoreBlock"]
+offset_left = 48.0
+offset_top = 67.0
+offset_right = 329.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
+theme_override_fonts/font = ExtResource("6_de1lf")
+text = "ENTER YOUR NAME - CDM"
+horizontal_alignment = 1
+
 [node name="Menu" parent="." instance=ExtResource("1_nwwtp")]
 
 [connection signal="body_entered" from="Level/EnemiesSpawnArea" to="." method="OnEnemyEntersSpawnArea"]
+[connection signal="timeout" from="Level/EndLevelTimer" to="." method="OnEndLevelTimer"]
 [connection signal="timeout" from="Level/LevelStartMessagesTimer" to="." method="CycleIntroMessages"]
 [connection signal="timeout" from="Level/LevelStartBeforeMessagesTimer" to="." method="ShowReadyMessage"]
 [connection signal="finished" from="GameplayPlayer" to="." method="OnGameplayMusicFinished"]

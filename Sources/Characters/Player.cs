@@ -10,6 +10,7 @@ public partial class Player : Character
     /********************************* Nodes ***********************************/
 
     private Node2D projectileSpawnPoint;
+    private Node2D shotDirectionView;
 
     /*****************************************************************************/
     /******************************* Properties *********************************/
@@ -26,6 +27,7 @@ public partial class Player : Character
 
         // Nodes init
         projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
+        shotDirectionView = GetNode<Node2D>("ProjectileSpawnPoint/ShotDirection");
     }
 
     public override void _Process(double delta)
@@ -34,6 +36,15 @@ public partial class Player : Character
         HandleMovement();
         HandleShooting();
         pickAnimation();
+        
+        // Rotate the shot direction to mouse position
+        if (!IsGameStarted() || IsDead() || GetLevelIntroStatus() != LevelIntroStatus.LEVEL_STARTED)
+            shotDirectionView.Hide();
+        else
+        {
+            shotDirectionView.Show();
+            shotDirectionView.LookAt(GetGlobalMousePosition());
+        }
     }
 
     private void HandleShooting()
@@ -96,9 +107,13 @@ public partial class Player : Character
 
     public void SetDirection(Vector2 direction)
     {
-        if (IsGameStarted() && !IsGamePaused() && !isDead)
-        {
-            moveDirection = direction;
-        }
+        moveDirection = direction;
+    }
+
+    public void Reset()
+    {
+        isDead = false;
+        characterSprite.Show();
+        deathSprite.Hide();
     }
 }
