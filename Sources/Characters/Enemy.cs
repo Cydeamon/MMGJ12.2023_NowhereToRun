@@ -96,7 +96,10 @@ public partial class Enemy : Character
         if (!isDead && !IsGamePaused())
         {
             velocity = moveDirection * Speed;
-            MoveAndCollide(velocity * (float)delta);
+            KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);
+
+            if (collision != null)
+                velocity = Vector2.Zero;
         }
     }
 
@@ -138,6 +141,7 @@ public partial class Enemy : Character
                                               LevelStartEnemiesPointCollisionShape.Size.Y / 2);
 
                 moveDirection = (targetPoint - GlobalPosition).Normalized();
+                determineNextShotTime();
             }
             else
             {
