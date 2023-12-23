@@ -70,6 +70,8 @@ public partial class Main : Node2D
     private AudioStream ReadySound = GD.Load<AudioStream>("res://Assets/Sounds/Ready.wav");
     private AudioStream DeadSound = GD.Load<AudioStream>("res://Assets/Sounds/Dead.wav");
     private AudioStream GoSound = GD.Load<AudioStream>("res://Assets/Sounds/Go.wav");
+    private static AudioStream ShootSound = GD.Load<AudioStream>("res://Assets/Sounds/Shoot.wav");
+    private static AudioStream ExplodeSound = GD.Load<AudioStream>("res://Assets/Sounds/Explode.wav");
     private double Delta;
     private List<HighScoreEntry> highScores;
 
@@ -83,6 +85,7 @@ public partial class Main : Node2D
     public AudioStreamPlayer MenuPlayer;
     public AudioStreamPlayer GameplayPlayer;
     public AudioStreamPlayer MessagesPlayer;
+    public AudioStreamPlayer SoundsPlayer;
     public Area2D EnemiesSpawnArea;
     public CollisionShape2D EnemiesSpawnAreaCollision;
     public RectangleShape2D EnemiesSpawnAreaCollisionShape;
@@ -116,6 +119,7 @@ public partial class Main : Node2D
         MenuPlayer = GetNode<AudioStreamPlayer>("MenuPlayer");
         GameplayPlayer = GetNode<AudioStreamPlayer>("GameplayPlayer");
         MessagesPlayer = GetNode<AudioStreamPlayer>("MessagesPlayer");
+        SoundsPlayer = GetNode<AudioStreamPlayer>("SoundsPlayer");
         EnemiesSpawnArea = GetNode<Area2D>("Level/EnemiesSpawnArea");
         EnemiesSpawnAreaCollision = EnemiesSpawnArea.GetChild<CollisionShape2D>(0);
         EnemiesSpawnAreaCollisionShape = EnemiesSpawnAreaCollision.Shape as RectangleShape2D;
@@ -137,6 +141,7 @@ public partial class Main : Node2D
         nextEnemySpawnTime = (ulong)random.Next(enemySpawnTimeMin, enemySpawnTimeMax) + Time.GetTicksMsec();
 
         Player.Killed += OnPlayerKilled;
+        Player.PlayerShot += PlayShootSound;
 
         // Expand window if windowed by default
         if (GetViewport().GetWindow().Mode == Window.ModeEnum.Windowed)
@@ -381,10 +386,17 @@ public partial class Main : Node2D
                     enemy.GlobalPosition = spawnPoint;
                     enemy.Killed += OnEnemyKilled;
                     enemy.EnemyRunAway += OnEnemyRunAway;
+                    enemy.EnemyShot += PlayShootSound;
                     GetNode("Level/Enemies").AddChild(enemy);
                 }
             }
         }
+    }
+
+    private void PlayShootSound()
+    {
+        SoundsPlayer.Stream = ShootSound;
+        SoundsPlayer.Play();
     }
 
     private void OnEnemyRunAway()
@@ -628,6 +640,14 @@ public partial class Main : Node2D
             MessagesPlayer.Stream = DeadSound;
             MessagesPlayer.Play();
         }
+        
+        // Cancel "Level complete"
+        if (levelOutroStatus == LevelOutroStatus.FINISHED)
+        {
+            MessageSprite.Hide();
+            MessageLevelCompleteSprite.Hide();
+            GetNode<Timer>("Level/EndLevelTimer").Stop();
+        }
 
         // Show game over message
         StatusLabel.Text = "Game over. Press ESC to return to main menu.";
@@ -673,33 +693,36 @@ public partial class Main : Node2D
 
     private void OnEndLevelTimer()
     {
-        if (levelOutroStatus == LevelOutroStatus.LEVEL_IS_RUNNING)
+        if (!Player.IsDead())
         {
-            MessageSprite.Show();
-            MessageLevelCompleteSprite.Show();
-            levelOutroStatus = LevelOutroStatus.FINISHED;
-            GetNode<Timer>("Level/EndLevelTimer").Start();
-        }
-        else if (levelOutroStatus == LevelOutroStatus.FINISHED)
-        {
-            GameReset(false);
-            level += 1;
-            enemiesKilled = 0;
-            enemiesInitialNumber = (int)((float)enemiesInitialNumber * 1.5);
-            enemiesLeft = enemiesInitialNumber;
-            MessageSprite.Hide();
-            MessageLevelCompleteSprite.Hide();
-            levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
-            isGameStarted = true;
-            isGamePaused = false;
+            if (levelOutroStatus == LevelOutroStatus.LEVEL_IS_RUNNING)
+            {
+                MessageSprite.Show();
+                MessageLevelCompleteSprite.Show();
+                levelOutroStatus = LevelOutroStatus.FINISHED;
+                GetNode<Timer>("Level/EndLevelTimer").Start();
+            }
+            else if (levelOutroStatus == LevelOutroStatus.FINISHED)
+            {
+                GameReset(false);
+                level += 1;
+                enemiesKilled = 0;
+                enemiesInitialNumber = (int)((float)enemiesInitialNumber * 1.5);
+                enemiesLeft = enemiesInitialNumber;
+                MessageSprite.Hide();
+                MessageLevelCompleteSprite.Hide();
+                levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
+                isGameStarted = true;
+                isGamePaused = false;
 
-            levelIntroStatus = LevelIntroStatus.RUNNING_UP;
-            GetNode<Timer>("Level/LevelStartBeforeMessagesTimer").Start();
-            Player.GlobalPosition = GetNode<Node2D>("Level/LevelStartPlayerPoint").GlobalPosition;
-            Player.SetDirection(Vector2.Up);
+                levelIntroStatus = LevelIntroStatus.RUNNING_UP;
+                GetNode<Timer>("Level/LevelStartBeforeMessagesTimer").Start();
+                Player.GlobalPosition = GetNode<Node2D>("Level/LevelStartPlayerPoint").GlobalPosition;
+                Player.SetDirection(Vector2.Up);
 
-            GameplayPlayer.Stream = LevelStartMusic;
-            GameplayPlayer.Play();
+                GameplayPlayer.Stream = LevelStartMusic;
+                GameplayPlayer.Play();
+            }
         }
     }
 }

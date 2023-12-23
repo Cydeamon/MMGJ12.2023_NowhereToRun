@@ -10,6 +10,7 @@ public partial class Enemy : Character
     /********************************** Signals *********************************/
     
     [Signal] public delegate void EnemyRunAwayEventHandler();
+    [Signal] public delegate void EnemyShotEventHandler();
     
     /****************************************************************************/
     /********************************** Enums ***********************************/
@@ -199,12 +200,13 @@ public partial class Enemy : Character
                                 projectile.Direction = (Player.GlobalPosition - GlobalPosition).Normalized();
                                 projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
                                 GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
+                                EmitSignal("EnemyShot");
                             }
                         }
 
                         if (Type == EnemyType.GRENADE)
                         {
-                            if (Math.Abs(GlobalPosition.DistanceTo(Player.GlobalPosition)) > 60)
+                            if (Math.Abs(GlobalPosition.DistanceTo(Player.GlobalPosition)) > 70)
                                 moveDirection = Player.GlobalPosition - GlobalPosition;
                             else
                             {

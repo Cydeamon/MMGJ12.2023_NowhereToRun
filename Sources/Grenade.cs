@@ -9,6 +9,7 @@ public partial class Grenade : StaticBody2D
     /********************************** Nodes ************************************/
 
     private Sprite2D blastSprite;
+    private Sprite2D grenadeSprite;
 
     /*****************************************************************************/
     /******************************* Properties **********************************/
@@ -20,7 +21,10 @@ public partial class Grenade : StaticBody2D
     public override void _Ready()
     {
         // Nodes init
-        blastSprite = GetNode<Sprite2D>("Blast");
+        blastSprite = GetNode<Sprite2D>("Blast");  
+        grenadeSprite = GetNode<Sprite2D>("Grenade");
+        
+        grenadeSprite.Show();
     }
     
     public void Throw(Vector2 direction)
@@ -52,7 +56,5 @@ public partial class Grenade : StaticBody2D
         for (int i = 0; i < explosionArea.GetOverlappingBodies().Count; i++)
             if (explosionArea.GetOverlappingBodies()[i] is Character character)
                 character.BlastHit(GlobalPosition); 
-        
-        QueueFree();
     }
 }
