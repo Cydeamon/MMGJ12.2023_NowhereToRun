@@ -51,6 +51,7 @@ public partial class Main : Node2D
     private static LevelOutroStatus levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
     private static bool isGameStarted = false;
     private static bool isGamePaused = true;
+    private static bool isControllerMode = false;
     private bool highScoreNameInput = false;
     private int highScoreNameLetter = 0;
     private string highScoreName = "";
@@ -97,6 +98,7 @@ public partial class Main : Node2D
     public Node2D MessageLevelCompleteSprite;
     public Node2D MessageDeadSprite;
     public Label StatusLabel;
+    private Vector2 lastMousePosition;
 
 
     /***************************************************************************/
@@ -104,7 +106,9 @@ public partial class Main : Node2D
 
     public static bool IsGameStarted() => isGameStarted;
     public static bool IsGamePaused() => isGamePaused;
+    public static bool IsControllerMode() => isControllerMode;
     public static LevelIntroStatus GetLevelIntroStatus() => levelIntroStatus;
+    
 
     /***************************************************************************/
     /********************************* Methods *********************************/
@@ -239,7 +243,16 @@ public partial class Main : Node2D
     {
         Delta = delta;
         HandleMusic();
+        checkControlMethod();
 
+        if (Input.IsActionJustPressed("ui_up") || Input.IsActionJustPressed("ui_down"))
+        {
+            if (GetViewport().GuiGetFocusOwner() == null)
+            {
+                Menu.GetNode<TextureButton>("MenuOptions/StartGame").GrabFocus();
+            }
+        }
+        
         if (!highScoreNameInput)
         {
             HandlePauseToggle();
@@ -257,6 +270,21 @@ public partial class Main : Node2D
         else
         {
             HandleHighScoreNameInput();
+        }
+    }
+
+    private void checkControlMethod()
+    {
+        if (Input.IsActionJustPressed("controller_aim_down") || Input.IsActionJustPressed("controller_aim_up") ||
+            Input.IsActionJustPressed("controller_aim_left") || Input.IsActionJustPressed("controller_aim_right"))
+        {
+            isControllerMode = true;
+        }
+
+        if (GetViewport().GetMousePosition() != lastMousePosition)
+        {
+            lastMousePosition = GetViewport().GetMousePosition();
+            isControllerMode = false;
         }
     }
 

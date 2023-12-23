@@ -48,8 +48,22 @@ public partial class Player : Character
         else
         {
             shotDirectionView.Show();
-            shotDirectionView.LookAt(GetGlobalMousePosition());
+
+            if (IsControllerMode())
+                shotDirectionView.LookAt(projectileSpawnPoint.GlobalPosition - GetControllerAimDirection());
+            else
+                shotDirectionView.LookAt(GetGlobalMousePosition());
         }
+    }
+
+    private Vector2 GetControllerAimDirection()
+    {
+        Vector2 controllerDirection = new Vector2(
+            Input.GetActionStrength("controller_aim_left") - Input.GetActionStrength("controller_aim_right"), 
+            Input.GetActionStrength("controller_aim_up") - Input.GetActionStrength("controller_aim_down")
+        );
+        
+        return controllerDirection.Normalized();
     }
 
     private void HandleShooting()
@@ -59,7 +73,12 @@ public partial class Player : Character
         {
             Projectile projectile = (Projectile)GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
             projectile.Shooter = this;
-            projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+            
+            if (IsControllerMode())
+                projectile.Direction = -GetControllerAimDirection();
+            else
+                projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+            
             projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
             GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
             cooldownUntil = Time.GetTicksMsec() + (ulong)shotCooldownTime;

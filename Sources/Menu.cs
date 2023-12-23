@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using Godot.Collections;
 
 public partial class Menu : Control
 {
@@ -41,10 +42,40 @@ public partial class Menu : Control
                 option.Pressed += ActivateSubmenu;
         }
 
+        // Options neighbours order
+        Array<Node> options = GetNode<VBoxContainer>("MenuOptions").GetChildren();
+        for (int i = 0; i < options.Count; i++)
+        {
+            TextureButton option = options[i] as TextureButton;
+
+            if (i != 0)
+            {
+                TextureButton previousOption = options[i - 1] as TextureButton;
+                option.FocusNeighborTop = previousOption.GetPath();
+            }
+
+            if (i != options.Count - 1)
+            {
+                TextureButton nextOption = options[i + 1] as TextureButton;
+                option.FocusNeighborBottom = nextOption.GetPath();
+            }
+        }
+
         // Submenus "Go Back" options
         foreach (Control submenu in GetNode("Submenus").GetChildren())
             if (submenu.Name != "Backdrop")
                 submenu.GetNode<TextureButton>("GoBack").Pressed += GoBack;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        
+        if (ActiveSubmenu != null)
+        {
+            if (Input.IsActionJustPressed("ui_cancel"))
+                GoBack();
+        }
     }
 
     public void ActivateSubmenu()
