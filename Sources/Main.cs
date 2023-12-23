@@ -69,7 +69,7 @@ public partial class Main : Node2D
     private AudioStream LevelMusic2 = GD.Load<AudioStream>("res://Assets/Music/Gameplay2.wav");
     private AudioStream ReadySound = GD.Load<AudioStream>("res://Assets/Sounds/Ready.wav");
     private AudioStream DeadSound = GD.Load<AudioStream>("res://Assets/Sounds/Dead.wav");
-    private AudioStream GoSound = GD.Load<AudioStream>("res://Assets/Sounds/Go.wav");
+    private AudioStream GoSound = GD.Load<AudioStream>("res://Assets/Sounds/GO.wav");
     private static AudioStream ShootSound = GD.Load<AudioStream>("res://Assets/Sounds/Shoot.wav");
     private static AudioStream ExplodeSound = GD.Load<AudioStream>("res://Assets/Sounds/Explode.wav");
     private double Delta;

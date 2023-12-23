@@ -154,7 +154,7 @@ A bunch of bandits are after you. All you have with you is a slow six-shooter. D
 Controls: Mouse + WASD.
 
 -- About My Monthly Game Jam
-This is my personal game jam that takes place within one month. I come up with idea and try to implement the game within a month. Goal: Improving my skills. "
+This is my personal game jam that takes place within one month. I come up with idea and try to implement the game within a month."
 fit_content = true
 
 [node name="GoBack" type="TextureButton" parent="Submenus/About"]
