@@ -279,12 +279,20 @@ public partial class Main : Node2D
             Input.IsActionJustPressed("controller_aim_left") || Input.IsActionJustPressed("controller_aim_right"))
         {
             isControllerMode = true;
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
+        }
+        
+        if (Input.IsActionJustPressed("ui_up") || Input.IsActionJustPressed("ui_down") ||
+            Input.IsActionJustPressed("ui_left") || Input.IsActionJustPressed("ui_right"))
+        {
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
         }
 
         if (GetViewport().GetMousePosition() != lastMousePosition)
         {
             lastMousePosition = GetViewport().GetMousePosition();
             isControllerMode = false;
+            Input.MouseMode = Input.MouseModeEnum.Visible;
         }
     }
 

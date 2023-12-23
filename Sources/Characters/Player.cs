@@ -73,9 +73,14 @@ public partial class Player : Character
         {
             Projectile projectile = (Projectile)GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
             projectile.Shooter = this;
-            
+
             if (IsControllerMode())
-                projectile.Direction = -GetControllerAimDirection();
+            {
+                if (GetControllerAimDirection() != Vector2.Zero)
+                    projectile.Direction = -GetControllerAimDirection();
+                else
+                    projectile.Direction = Vector2.Left;
+            }
             else
                 projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
             
