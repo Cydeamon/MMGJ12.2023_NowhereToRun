@@ -23,6 +23,7 @@ public partial class Menu : Control
 
     private Control ActiveSubmenu = null;
 
+
     /***************************************************************************/
     /********************************* Methods *********************************/
 
@@ -42,7 +43,8 @@ public partial class Menu : Control
 
         // Submenus "Go Back" options
         foreach (Control submenu in GetNode("Submenus").GetChildren())
-            submenu.GetNode<TextureButton>("GoBack").Pressed += GoBack;
+            if (submenu.Name != "Backdrop")
+                submenu.GetNode<TextureButton>("GoBack").Pressed += GoBack;
     }
 
     public void ActivateSubmenu()
@@ -54,6 +56,8 @@ public partial class Menu : Control
             submenu.Show();
             GetNode<Control>("MenuOptions").Hide();
             GetNode<Node2D>("InfoLabel").Hide();
+            GetNode<Node2D>("Logo").Hide();
+            GetNode<ColorRect>("Submenus/Backdrop").Show();
         }
     }
 
@@ -63,6 +67,8 @@ public partial class Menu : Control
         ActiveSubmenu = null;
         GetNode<Control>("MenuOptions").Show();
         GetNode<Node2D>("InfoLabel").Show();
+        GetNode<Node2D>("Logo").Show();
+        GetNode<ColorRect>("Submenus/Backdrop").Hide();
     }
 
     public void OnStartGamePressed()

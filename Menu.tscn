@@ -30,7 +30,7 @@ script = ExtResource("2_cs5pv")
 position = Vector2(192, 108)
 texture = ExtResource("1_bbifa")
 
-[node name="Title" type="Sprite2D" parent="."]
+[node name="Logo" type="Sprite2D" parent="."]
 position = Vector2(20, 13)
 texture = ExtResource("3_740qq")
 centered = false
@@ -85,14 +85,23 @@ stretch_mode = 4
 
 [node name="Submenus" type="Node" parent="."]
 
+[node name="Backdrop" type="ColorRect" parent="Submenus"]
+visible = false
+offset_left = 5.0
+offset_top = 4.0
+offset_right = 379.0
+offset_bottom = 211.0
+color = Color(0, 0, 0, 0.662745)
+
 [node name="Credits" type="VBoxContainer" parent="Submenus"]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
-offset_top = 48.0
+offset_top = 21.0
 offset_right = -14.0
+offset_bottom = -27.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -106,9 +115,11 @@ theme_override_fonts/normal_font = ExtResource("11_njolt")
 text = "Red-Blood Pain Palette by ahmed
 https://lospec.com/palette-list/red-blood-pain
 
-Speech VST
+Speech VST by wavosaur
 http://blog.wavosaur.com/text-to-speech-vst-vst-speek/
 
+NES VST by Matthew Montag	
+https://www.mattmontag.com/projects-page/nintendo-vst
 "
 fit_content = true
 
@@ -125,9 +136,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
-offset_top = 39.0
+offset_top = 16.5
 offset_right = -14.0
-offset_bottom = -9.0
+offset_bottom = -16.5
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -139,7 +150,8 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_fonts/normal_font = ExtResource("11_njolt")
 text = "-- About \"Nowhere To Run\"
-A bunch of bandits are after you. All you have with you is a slow six-shooter. Dodge the bullets and put the bandits under their own bullets 
+A bunch of bandits are after you. All you have with you is a slow six-shooter. Dodge the bullets and put the bandits under their own bullets.
+Controls: Mouse + WASD.
 
 -- About My Monthly Game Jam
 This is my personal game jam that takes place within one month. I come up with idea and try to implement the game within a month. Goal: Improving my skills. "
@@ -157,10 +169,10 @@ visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 15.0
-offset_top = 44.0
-offset_right = -11.0
-offset_bottom = -4.0
+offset_left = 12.0
+offset_top = 35.0
+offset_right = -14.0
+offset_bottom = -13.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -180,7 +192,7 @@ fit_content = true
 
 [node name="Scores" type="RichTextLabel" parent="Submenus/HighScores/HBoxContainer"]
 clip_contents = false
-custom_minimum_size = Vector2(70, 130)
+custom_minimum_size = Vector2(60, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
