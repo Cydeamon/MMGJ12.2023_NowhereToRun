@@ -16,7 +16,6 @@ public partial class Player : Character
 
     private Node2D projectileSpawnPoint;
     private Node2D shotDirectionView;
-    private AudioStreamPlayer StepsPlayer;
 
     /*****************************************************************************/
     /******************************* Properties *********************************/
@@ -34,7 +33,6 @@ public partial class Player : Character
         // Nodes init
         projectileSpawnPoint = GetNode<Node2D>("ProjectileSpawnPoint");
         shotDirectionView = GetNode<Node2D>("ProjectileSpawnPoint/ShotDirection");
-        StepsPlayer = GetNode<AudioStreamPlayer>("StepsPlayer");
     }
 
     public override void _Process(double delta)
@@ -52,12 +50,6 @@ public partial class Player : Character
             shotDirectionView.Show();
             shotDirectionView.LookAt(GetGlobalMousePosition());
         }
-        
-        // Steps
-        if (!IsGamePaused() && !IsDead() && velocity != Vector2.Zero)
-            StepsPlayer.VolumeDb = 0;
-        else
-            StepsPlayer.VolumeDb = -80;
     }
 
     private void HandleShooting()
