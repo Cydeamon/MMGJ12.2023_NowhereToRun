@@ -186,6 +186,7 @@ vertical_alignment = 1
 
 [node name="NewHighscoreBlock" type="Node2D" parent="HUD"]
 visible = false
+position = Vector2(1, 106)
 
 [node name="ColorRect2" type="ColorRect" parent="HUD/NewHighscoreBlock"]
 offset_left = 87.0

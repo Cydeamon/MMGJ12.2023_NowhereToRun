@@ -151,7 +151,8 @@ size_flags_vertical = 4
 theme_override_fonts/normal_font = ExtResource("11_njolt")
 text = "-- About \"Nowhere To Run\"
 A bunch of bandits are after you. All you have with you is a slow six-shooter. Dodge the bullets and put the bandits under their own bullets.
-Controls: Mouse + WASD.
+Controls: Mouse + WASD. 
+F11 - Toggle between fullscreen and windowed mode.
 
 -- About My Monthly Game Jam
 This is my personal game jam that takes place within one month. I come up with idea and try to implement the game within a month."
