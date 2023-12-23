@@ -125,6 +125,9 @@ position = Vector2(189, 208)
 stream = ExtResource("12_2ghfv")
 autoplay = true
 
+[node name="MessagesPlayer" type="AudioStreamPlayer" parent="."]
+volume_db = -10.0
+
 [node name="GameplayPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("13_btshr")
 

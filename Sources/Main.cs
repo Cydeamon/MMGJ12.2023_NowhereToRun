@@ -46,7 +46,7 @@ public partial class Main : Node2D
             Score = score;
         }
     }
-    
+
     private static LevelIntroStatus levelIntroStatus;
     private static LevelOutroStatus levelOutroStatus = LevelOutroStatus.LEVEL_IS_RUNNING;
     private static bool isGameStarted = false;
@@ -67,6 +67,9 @@ public partial class Main : Node2D
     private AudioStream LevelStartMusic = GD.Load<AudioStream>("res://Assets/Music/LevelStart.wav");
     private AudioStream LevelMusic1 = GD.Load<AudioStream>("res://Assets/Music/Gameplay1.wav");
     private AudioStream LevelMusic2 = GD.Load<AudioStream>("res://Assets/Music/Gameplay2.wav");
+    private AudioStream ReadySound = GD.Load<AudioStream>("res://Assets/Sounds/Ready.wav");
+    private AudioStream DeadSound = GD.Load<AudioStream>("res://Assets/Sounds/Dead.wav");
+    private AudioStream GoSound = GD.Load<AudioStream>("res://Assets/Sounds/Go.wav");
     private double Delta;
     private List<HighScoreEntry> highScores;
 
@@ -79,6 +82,7 @@ public partial class Main : Node2D
     public Node ProjectilesContainer;
     public AudioStreamPlayer MenuPlayer;
     public AudioStreamPlayer GameplayPlayer;
+    public AudioStreamPlayer MessagesPlayer;
     public Area2D EnemiesSpawnArea;
     public CollisionShape2D EnemiesSpawnAreaCollision;
     public RectangleShape2D EnemiesSpawnAreaCollisionShape;
@@ -111,6 +115,7 @@ public partial class Main : Node2D
         ProjectilesContainer = GetNode("Level/Projectiles");
         MenuPlayer = GetNode<AudioStreamPlayer>("MenuPlayer");
         GameplayPlayer = GetNode<AudioStreamPlayer>("GameplayPlayer");
+        MessagesPlayer = GetNode<AudioStreamPlayer>("MessagesPlayer");
         EnemiesSpawnArea = GetNode<Area2D>("Level/EnemiesSpawnArea");
         EnemiesSpawnAreaCollision = EnemiesSpawnArea.GetChild<CollisionShape2D>(0);
         EnemiesSpawnAreaCollisionShape = EnemiesSpawnAreaCollision.Shape as RectangleShape2D;
@@ -147,7 +152,7 @@ public partial class Main : Node2D
 
             GetViewport().GetWindow().MoveToCenter();
         }
-        
+
         GetViewport().GetWindow().Mode = Window.ModeEnum.ExclusiveFullscreen;
 
         // Create image for BloodDrawSprite
@@ -229,7 +234,7 @@ public partial class Main : Node2D
     {
         Delta = delta;
         HandleMusic();
-        
+
         if (!highScoreNameInput)
         {
             HandlePauseToggle();
@@ -290,21 +295,21 @@ public partial class Main : Node2D
         RichTextLabel scores = GetNode<RichTextLabel>("Menu/Submenus/HighScores/HBoxContainer/Scores");
         names.Text = "";
         scores.Text = "";
-        
+
         for (int i = 0; i < highScores.Count; i++)
         {
             names.Text += highScores[i].Name;
-            
+
             if (i != highScores.Count - 1)
                 names.Text += "\n";
         }
-        
+
         for (int i = 0; i < highScores.Count; i++)
         {
             scores.Text += highScores[i].Score;
-            
+
             if (i != highScores.Count - 1)
-                scores.Text += "\n";    
+                scores.Text += "\n";
         }
     }
 
@@ -321,7 +326,7 @@ public partial class Main : Node2D
     private void SortHighScores()
     {
         highScores.Sort((a, b) => b.Score.CompareTo(a.Score));
-        
+
         if (highScores.Count > 8)
             highScores.RemoveRange(8, highScores.Count - 8);
     }
@@ -568,6 +573,13 @@ public partial class Main : Node2D
         levelIntroStatus = LevelIntroStatus.MESSAGE_READY;
         MessageSprite.Show();
         MessageReadySprite.Show();
+
+        if (!isGamePaused)
+        {
+            MessagesPlayer.Stream = ReadySound;
+            MessagesPlayer.Play();
+        }
+
         GetNode<Timer>("Level/LevelStartMessagesTimer").Start();
     }
 
@@ -585,6 +597,13 @@ public partial class Main : Node2D
             {
                 levelIntroStatus = LevelIntroStatus.MESSAGE_GO;
                 MessageGoSprite.Show();
+
+
+                if (!isGamePaused)
+                {
+                    MessagesPlayer.Stream = GoSound;
+                    MessagesPlayer.Play();
+                }
             }
         }
         else if (levelIntroStatus == LevelIntroStatus.MESSAGE_GO)
@@ -604,6 +623,12 @@ public partial class Main : Node2D
 
     private void OnPlayerKilled()
     {
+        if (!isGamePaused)
+        {
+            MessagesPlayer.Stream = DeadSound;
+            MessagesPlayer.Play();
+        }
+
         // Show game over message
         StatusLabel.Text = "Game over. Press ESC to return to main menu.";
         MessageSprite.Show();
