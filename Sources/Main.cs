@@ -72,7 +72,6 @@ public partial class Main : Node2D
     private AudioStream DeadSound = GD.Load<AudioStream>("res://Assets/Sounds/Dead.wav");
     private AudioStream GoSound = GD.Load<AudioStream>("res://Assets/Sounds/GO.wav");
     private static AudioStream ShootSound = GD.Load<AudioStream>("res://Assets/Sounds/Shoot.wav");
-    private static AudioStream ExplodeSound = GD.Load<AudioStream>("res://Assets/Sounds/Explode.wav");
     private double Delta;
     private List<HighScoreEntry> highScores;
 
@@ -135,9 +134,13 @@ public partial class Main : Node2D
         MessageLevelCompleteSprite = GetNode<Node2D>("HUD/Message/MessageLevelComplete");
         MessageDeadSprite = GetNode<Node2D>("HUD/Message/MessageDead");
         StatusLabel = GetNode<Label>("HUD/Status");
-
-        // Init variables
+        
+        // Initialize variables
         highScores = new List<HighScoreEntry>();
+        
+        // Read settings
+        ReadINI();
+        Menu.UpdateSettings();
 
         // Initialize game
         score = 0;
@@ -162,7 +165,8 @@ public partial class Main : Node2D
             GetViewport().GetWindow().MoveToCenter();
         }
 
-        GetViewport().GetWindow().Mode = Window.ModeEnum.ExclusiveFullscreen;
+        GetViewport().GetWindow().Mode = 
+            GlobalGameState.Fullscreen ? Window.ModeEnum.ExclusiveFullscreen : Window.ModeEnum.Windowed;
 
         // Create image for BloodDrawSprite
         Image bloodDrawSpriteImage = Image.Create(
@@ -173,9 +177,57 @@ public partial class Main : Node2D
         );
 
         GetNode<Sprite2D>("Level/BloodDrawSprite").Texture = ImageTexture.CreateFromImage(bloodDrawSpriteImage);
+    }
+    public override void _Process(double delta)
+    {
+        Delta = delta;
+        HandleMusic();
+        checkControlMethod();
 
-        // Initialize settings
-        ReadINI();
+        if (!highScoreNameInput)
+        {
+            HandlePauseToggle();
+            HandleFullscreenToggle();
+            destroyOutOfBoundsProjectiles();
+            HandleEnemiesSpawn();
+            HandleLevelIntro();
+
+            if (!Player.IsDead())
+            {
+                StatusLabel.Text =
+                    $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
+            }
+        }
+        else
+        {
+            HandleHighScoreNameInput();
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        
+        // Save settings
+        WriteINI();
+    }
+
+    private void WriteINI()
+    {
+        string filePath = "NowhereToRun.ini";
+        using StreamWriter writer = new StreamWriter(filePath);
+        
+        writer.WriteLine("[SETTINGS]");
+        writer.WriteLine($"Fullscreen={GlobalGameState.Fullscreen}");
+        writer.WriteLine($"MusicVolume={GlobalGameState.MusicVolume}");
+        writer.WriteLine($"SoundsVolume={GlobalGameState.SoundsVolume}");
+        writer.WriteLine();
+        writer.WriteLine("[HIGHSCORES]");
+
+        for (int i = 0; i < highScores.Count; i++)
+            writer.WriteLine($"{highScores[i].Name}={highScores[i].Score}");
+        
+        writer.Close();
     }
 
     private void ReadINI()
@@ -184,7 +236,7 @@ public partial class Main : Node2D
         using StreamReader reader = new StreamReader(filePath);
 
         string sectionNamePattern = @"\[([A-Z_]+)\]";
-        string sectionParamPattern = @"([A-Z_]+)=([0-9]+)";
+        string sectionParamPattern = @"([A-z_]+)=([Tt]rue|[Ff]alse|[0-9-]+)";
 
         string line = "", currentSection = "", paramName = "", paramValue = "";
         while ((line = reader.ReadLine()) != null)
@@ -235,41 +287,16 @@ public partial class Main : Node2D
 
                 highScores.Add(new HighScoreEntry(paramName, paramValue));
             }
-        }
-    }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-        Delta = delta;
-        HandleMusic();
-        checkControlMethod();
-
-        if (Input.IsActionJustPressed("ui_up") || Input.IsActionJustPressed("ui_down"))
-        {
-            if (GetViewport().GuiGetFocusOwner() == null)
+            if (currentSection == "SETTINGS")
             {
-                Menu.GetNode<TextureButton>("MenuOptions/StartGame").GrabFocus();
+                switch (paramName)
+                {
+                    case "MusicVolume":  GlobalGameState.MusicVolume = int.Parse(paramValue); break;
+                    case "SoundsVolume": GlobalGameState.SoundsVolume = int.Parse(paramValue); break;
+                    case "Fullscreen":   GlobalGameState.Fullscreen = bool.Parse(paramValue); break;
+                }
             }
-        }
-        
-        if (!highScoreNameInput)
-        {
-            HandlePauseToggle();
-            HandleFullscreenToggle();
-            destroyOutOfBoundsProjectiles();
-            HandleEnemiesSpawn();
-            HandleLevelIntro();
-
-            if (!Player.IsDead())
-            {
-                StatusLabel.Text =
-                    $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
-            }
-        }
-        else
-        {
-            HandleHighScoreNameInput();
         }
     }
 
@@ -318,7 +345,6 @@ public partial class Main : Node2D
                     highScoreNameInput = false;
                     highScores.Add(new HighScoreEntry(name, score));
                     SortHighScores();
-                    SaveHighScores();
                     UpdateHighScoresTable();
                     highScoreNameInput = false;
                     GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
@@ -352,16 +378,6 @@ public partial class Main : Node2D
             if (i != highScores.Count - 1)
                 scores.Text += "\n";
         }
-    }
-
-    private void SaveHighScores()
-    {
-        string filePath = "NowhereToRun.ini";
-        using StreamWriter writer = new StreamWriter(filePath);
-        writer.WriteLine("[HIGHSCORES]");
-
-        for (int i = 0; i < highScores.Count; i++)
-            writer.WriteLine($"{highScores[i].Name}={highScores[i].Score}");
     }
 
     private void SortHighScores()
@@ -432,6 +448,7 @@ public partial class Main : Node2D
     private void PlayShootSound()
     {
         SoundsPlayer.Stream = ShootSound;
+        SoundsPlayer.VolumeDb = GlobalGameState.SoundsVolume;
         SoundsPlayer.Play();
     }
 
@@ -458,13 +475,13 @@ public partial class Main : Node2D
             else
             {
                 GameplayPlayer.PitchScale = 1f;
-                GameplayPlayer.VolumeDb = 0;
+                GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
                 MenuPlayer.VolumeDb = -80;
             }
         }
         else
         {
-            MenuPlayer.VolumeDb = 0;
+            MenuPlayer.VolumeDb = GlobalGameState.MusicVolume;
             GameplayPlayer.VolumeDb = -80;
         }
     }
@@ -563,6 +580,7 @@ public partial class Main : Node2D
             startButton.TextureHover = continueButtonPressed;
 
             GameplayPlayer.Stream = LevelStartMusic;
+            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
             GameplayPlayer.Play();
 
             Player.StopBleeding();
@@ -582,6 +600,8 @@ public partial class Main : Node2D
             GetViewport().GetWindow().Mode = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen
                 ? Window.ModeEnum.Windowed
                 : Window.ModeEnum.ExclusiveFullscreen;
+            
+            GlobalGameState.Fullscreen = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen;
         }
     }
 
@@ -595,11 +615,13 @@ public partial class Main : Node2D
         else if (GameplayPlayer.Stream == LevelMusic1)
         {
             GameplayPlayer.Stream = LevelMusic2;
+            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
             GameplayPlayer.Play();
         }
         else if (GameplayPlayer.Stream == LevelMusic2)
         {
             GameplayPlayer.Stream = LevelMusic1;
+            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
             GameplayPlayer.Play();
         }
     }
@@ -625,6 +647,7 @@ public partial class Main : Node2D
         if (!isGamePaused)
         {
             MessagesPlayer.Stream = ReadySound;
+            MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
             MessagesPlayer.Play();
         }
 
@@ -650,6 +673,7 @@ public partial class Main : Node2D
                 if (!isGamePaused)
                 {
                     MessagesPlayer.Stream = GoSound;
+                    MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
                     MessagesPlayer.Play();
                 }
             }
@@ -674,6 +698,7 @@ public partial class Main : Node2D
         if (!isGamePaused)
         {
             MessagesPlayer.Stream = DeadSound;
+            MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
             MessagesPlayer.Play();
         }
         
@@ -706,7 +731,6 @@ public partial class Main : Node2D
         if (newHighScore)
         {
             GetNode<Label>("HUD/NewHighscoreBlock/Score").Text = $"{score} - NEW HIGH SCORE!";
-            GetNode<Label>("HUD/NewHighscoreBlock/EnterName").Text = $"ENTER YOUR NAME: ";
             GetNode<Node2D>("HUD/NewHighscoreBlock").Show();
             GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").GrabFocus();
             highScoreNameInput = true;
@@ -757,6 +781,7 @@ public partial class Main : Node2D
                 Player.SetDirection(Vector2.Up);
 
                 GameplayPlayer.Stream = LevelStartMusic;
+                GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
                 GameplayPlayer.Play();
             }
         }

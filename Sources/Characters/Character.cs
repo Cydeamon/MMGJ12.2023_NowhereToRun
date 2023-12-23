@@ -4,7 +4,7 @@ using static NowhereToRun.Sources.Main;
 
 namespace NowhereToRun.Sources.Characters;
 
-public abstract partial class Character : StaticBody2D
+public abstract partial class Character : CharacterBody2D
 {
     /****************************************************************************/
     /********************************* Signals **********************************/
@@ -30,7 +30,6 @@ public abstract partial class Character : StaticBody2D
     [Export] public int Speed = 50;
     protected double delta;
     protected bool isDead = false;
-    protected Vector2 velocity = Vector2.Zero;
     protected Vector2 moveDirection = Vector2.Zero;
     protected float bloodDropRate = 0.02f;
     protected float lastBloodDropTime = 0f;
@@ -84,21 +83,29 @@ public abstract partial class Character : StaticBody2D
             if (!deathSprite.Visible)
                 showDeathSprite();
 
-            if (velocity != Vector2.Zero)
+            if (Velocity != Vector2.Zero)
             {
-                velocity = velocity.Lerp(Vector2.Zero, (float)(5 * delta));
-                KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);
+                Velocity = Velocity.Lerp(Vector2.Zero, (float)(5 * delta));
+                KinematicCollision2D collision = MoveAndCollide(Velocity * (float)delta);
 
                 if (collision != null)
-                    velocity = velocity.Bounce(collision.GetNormal());
-                
-                if (Math.Abs(velocity.X) < 0.5)
-                    velocity.X = 0;
+                    Velocity = Velocity.Bounce(collision.GetNormal());
 
-                if (Math.Abs(velocity.Y) < 0.5)
+                if (Math.Abs(Velocity.X) < 0.5)
+                {
+                    Vector2 velocity = Velocity;
+                    velocity.X = 0;
+                    Velocity = velocity;
+                }
+
+                if (Math.Abs(Velocity.Y) < 0.5)
+                {
+                    Vector2 velocity = Velocity;
                     velocity.Y = 0;
+                    Velocity = velocity;
+                }
                 
-                if (velocity == Vector2.Zero)
+                if (Velocity == Vector2.Zero)
                     GetNode<CollisionShape2D>("Collision").Disabled = true;
             }
         }
@@ -143,7 +150,7 @@ public abstract partial class Character : StaticBody2D
 
                 float radius = bigShape.Radius;
 
-                if (velocity != Vector2.Zero)
+                if (Velocity != Vector2.Zero)
                     radius = smallShape.Radius;
 
                 drawPosition = new Vector2(
@@ -172,7 +179,7 @@ public abstract partial class Character : StaticBody2D
         if (!isDead)
         {
             die();
-            velocity = direction * (random.Next(275) + 25);
+            Velocity = direction * (random.Next(275) + 25);
             EmitSignal("Killed");
         }
     }
@@ -182,7 +189,7 @@ public abstract partial class Character : StaticBody2D
         if (!isDead)
         {
             die();
-            velocity = (GlobalPosition - explosionPosition).Normalized() * (random.Next(275) + 25);
+            Velocity = (GlobalPosition - explosionPosition).Normalized() * (random.Next(275) + 25);
             EmitSignal("Killed");
         }
     }

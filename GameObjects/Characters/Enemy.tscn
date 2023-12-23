@@ -19,7 +19,8 @@ radius = 5.09902
 [sub_resource type="CircleShape2D" id="CircleShape2D_sab5q"]
 radius = 2.0
 
-[node name="Enemy" type="StaticBody2D"]
+[node name="Enemy" type="CharacterBody2D"]
+y_sort_enabled = true
 script = ExtResource("1_woqev")
 ShotMinTime = 1500
 ShotMaxTime = 3000
@@ -75,4 +76,4 @@ region_enabled = true
 region_rect = Rect2(0, 0, 8, 8)
 region_filter_clip_enabled = true
 
-[connection signal="timeout" from="BleedingTimer" to="." method="stopBleeding"]
+[connection signal="timeout" from="BleedingTimer" to="." method="StopBleeding"]

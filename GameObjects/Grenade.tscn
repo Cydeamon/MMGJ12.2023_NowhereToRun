@@ -125,6 +125,7 @@ _data = {
 }
 
 [node name="Grenade" type="StaticBody2D"]
+y_sort_enabled = true
 collision_layer = 2
 collision_mask = 2
 script = ExtResource("1_qpy7k")

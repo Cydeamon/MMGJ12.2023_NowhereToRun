@@ -10,6 +10,7 @@ public partial class Grenade : StaticBody2D
 
     private Sprite2D blastSprite;
     private Sprite2D grenadeSprite;
+    private AudioStreamPlayer explosionPlayer;
 
     /*****************************************************************************/
     /******************************* Properties **********************************/
@@ -23,6 +24,7 @@ public partial class Grenade : StaticBody2D
         // Nodes init
         blastSprite = GetNode<Sprite2D>("Blast");  
         grenadeSprite = GetNode<Sprite2D>("Grenade");
+        explosionPlayer = GetNode<AudioStreamPlayer>("ExplosionPlayer");
         
         grenadeSprite.Show();
     }
@@ -35,6 +37,7 @@ public partial class Grenade : StaticBody2D
     public override void _Process(double delta)
     {
         base._Process(delta);
+        explosionPlayer.VolumeDb = GlobalGameState.SoundsVolume;
         
         velocity = velocity.Lerp(Vector2.Zero, (float)(5 * delta));
         KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);

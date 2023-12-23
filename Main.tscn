@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=24 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://cy6ladst4qp0c" path="res://Assets/MessageDead.png" id="10_srpkn"]
 [ext_resource type="AudioStream" uid="uid://cocaqa537k010" path="res://Assets/Music/Menu.wav" id="12_2ghfv"]
 [ext_resource type="AudioStream" uid="uid://wv44w3m1pbse" path="res://Assets/Music/LevelStart.wav" id="13_btshr"]
+[ext_resource type="Texture2D" uid="uid://dn7ats0s1fuc2" path="res://Assets/Level/StreetLights.png" id="14_f8r4r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w7n5a"]
 size = Vector2(43, 187.5)
@@ -121,6 +122,51 @@ position = Vector2(189, 64)
 [node name="LevelStartPlayerPoint" type="Node2D" parent="Level"]
 position = Vector2(189, 208)
 
+[node name="StreetLights" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(108, 106)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+
+[node name="StreetLights2" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(108, 50)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+
+[node name="StreetLights3" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(108, 162)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+
+[node name="StreetLights4" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(272, 106)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+flip_h = true
+
+[node name="StreetLights5" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(272, 50)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+flip_h = true
+
+[node name="StreetLights6" type="Sprite2D" parent="Level"]
+y_sort_enabled = true
+position = Vector2(272, 162)
+texture = ExtResource("14_f8r4r")
+centered = false
+offset = Vector2(-5, -9)
+flip_h = true
+
 [node name="MenuPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("12_2ghfv")
 autoplay = true
@@ -156,7 +202,7 @@ color = Color(0.0705882, 0.0392157, 0.0980392, 1)
 
 [node name="Message" type="Sprite2D" parent="HUD"]
 visible = false
-position = Vector2(190, 115)
+position = Vector2(190, 113)
 texture = ExtResource("4_n3efa")
 
 [node name="MessageGo" type="Sprite2D" parent="HUD/Message"]
@@ -186,20 +232,20 @@ vertical_alignment = 1
 
 [node name="NewHighscoreBlock" type="Node2D" parent="HUD"]
 visible = false
-position = Vector2(1, 106)
+position = Vector2(1, 95)
 
 [node name="ColorRect2" type="ColorRect" parent="HUD/NewHighscoreBlock"]
 offset_left = 87.0
-offset_top = 52.0
+offset_top = 50.0
 offset_right = 289.0
-offset_bottom = 83.0
+offset_bottom = 111.0
 color = Color(0.368627, 0.25098, 0.411765, 1)
 
 [node name="ColorRect" type="ColorRect" parent="HUD/NewHighscoreBlock"]
 offset_left = 88.0
-offset_top = 53.0
+offset_top = 51.0
 offset_right = 288.0
-offset_bottom = 82.0
+offset_bottom = 110.0
 color = Color(0.0705882, 0.0392157, 0.0980392, 1)
 
 [node name="Score" type="Label" parent="HUD/NewHighscoreBlock"]
@@ -213,26 +259,37 @@ text = "0000000 - NEW HIGHSCORE!"
 horizontal_alignment = 1
 
 [node name="EnterName" type="Label" parent="HUD/NewHighscoreBlock"]
-offset_left = 35.0
+offset_left = 86.0
 offset_top = 67.0
-offset_right = 316.0
+offset_right = 288.0
 offset_bottom = 102.0
 theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
 theme_override_fonts/font = ExtResource("6_de1lf")
-text = "ENTER YOUR NAME: "
+text = "ENTER YOUR NAME"
+horizontal_alignment = 1
+
+[node name="EnterName2" type="Label" parent="HUD/NewHighscoreBlock"]
+offset_left = 88.0
+offset_top = 80.0
+offset_right = 288.0
+offset_bottom = 115.0
+theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
+theme_override_fonts/font = ExtResource("6_de1lf")
+text = "(or press ESC/Start to cancel)"
 horizontal_alignment = 1
 
 [node name="LineEdit" type="LineEdit" parent="HUD/NewHighscoreBlock"]
-offset_left = 239.0
-offset_top = 65.0
-offset_right = 283.0
-offset_bottom = 85.0
+offset_left = 88.0
+offset_top = 92.0
+offset_right = 287.0
+offset_bottom = 112.0
 theme_override_colors/font_color = Color(0.768627, 0.0941176, 0.121569, 1)
 theme_override_fonts/font = ExtResource("6_de1lf")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_fr261")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_kfdfm")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_r16ag")
 placeholder_text = "NAM"
+alignment = 1
 max_length = 3
 context_menu_enabled = false
 virtual_keyboard_enabled = false

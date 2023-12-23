@@ -92,20 +92,17 @@ public partial class Enemy : Character
     public override void _Process(double delta)
     {
         base._Process(delta);
+        pickAnimation();
         handleAI();
         handleMovement();
-        pickAnimation();
     }
 
     private void handleMovement()
     {
         if (!isDead && !IsGamePaused())
         {
-            velocity = moveDirection * Speed;
-            KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);
-
-            if (collision != null)
-                velocity = Vector2.Zero;
+            Velocity = moveDirection * Speed;
+            MoveAndSlide();
         }
     }
 
@@ -251,14 +248,14 @@ public partial class Enemy : Character
             };
         }
 
-        if (velocity.X > 0)
+        if (Velocity.X > 0)
             targetAnimation += "RunRight";
-        else if (velocity.X < 0)
+        else if (Velocity.X < 0)
             targetAnimation += "RunLeft";
-        else if (velocity.Y != 0)
+        else if (Velocity.Y != 0)
             targetAnimation += "RunVertical";
 
-        if (velocity == Vector2.Zero)
+        if (Velocity == Vector2.Zero)
             targetAnimation += "Idle";
 
         characterSprite.Play(targetAnimation);

@@ -19,7 +19,7 @@ radius = 5.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_3qqq4"]
 radius = 1.5
 
-[node name="Player" type="StaticBody2D"]
+[node name="Player" type="CharacterBody2D"]
 position = Vector2(-3, 0)
 script = ExtResource("1_p65lg")
 
@@ -46,14 +46,16 @@ shape = SubResource("RectangleShape2D_5x3y0")
 debug_color = Color(0.807843, 0, 0.0235294, 0.419608)
 
 [node name="ProjectileSpawnPoint" type="Node2D" parent="."]
-position = Vector2(6, -4)
+position = Vector2(4, -4)
 
 [node name="ShotDirection" type="Node2D" parent="ProjectileSpawnPoint"]
+y_sort_enabled = true
+position = Vector2(1, 0)
 
 [node name="ColorRect" type="ColorRect" parent="ProjectileSpawnPoint/ShotDirection"]
-offset_left = 10.0
-offset_right = 13.0
-offset_bottom = 1.0
+offset_left = 6.0
+offset_top = -1.0
+offset_right = 9.0
 color = Color(0.768627, 0.0941176, 0.121569, 1)
 
 [node name="BloodDropArea" type="Area2D" parent="."]
@@ -81,4 +83,4 @@ region_enabled = true
 region_rect = Rect2(0, 0, 8, 8)
 region_filter_clip_enabled = true
 
-[connection signal="timeout" from="BleedingTimer" to="." method="stopBleeding"]
+[connection signal="timeout" from="BleedingTimer" to="." method="StopBleeding"]

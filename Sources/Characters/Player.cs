@@ -20,7 +20,7 @@ public partial class Player : Character
     /*****************************************************************************/
     /******************************* Properties *********************************/
 
-    [Export] private int shotCooldownTime = 1000;
+    [Export] private int shotCooldownTime = 500;
     private ulong cooldownUntil = 0;
 
     /****************************************************************************/
@@ -106,8 +106,8 @@ public partial class Player : Character
 
         if (!isDead)
         {
-            velocity = moveDirection.Normalized() * Speed;
-            MoveAndCollide(velocity * (float)delta);
+            Velocity = moveDirection.Normalized() * Speed;
+            MoveAndSlide();
         }
     }
 
@@ -119,14 +119,14 @@ public partial class Player : Character
         {
             if (!isDead)
             {
-                if (velocity.X > 0)
+                if (Velocity.X > 0)
                     targetAnimation = "RunRight";
-                else if (velocity.X < 0)
+                else if (Velocity.X < 0)
                     targetAnimation = "RunLeft";
-                else if (velocity.Y != 0)
+                else if (Velocity.Y != 0)
                     targetAnimation = "RunVertical";
 
-                if (velocity == Vector2.Zero)
+                if (Velocity == Vector2.Zero)
                     targetAnimation = "Idle";
             }
         }
