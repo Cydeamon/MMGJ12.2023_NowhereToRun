@@ -87,6 +87,7 @@ public partial class Main : Node2D
     public AudioStreamPlayer MessagesPlayer;
     public AudioStreamPlayer SoundsPlayer;
     public Area2D EnemiesSpawnArea;
+    public Node EnemiesContainer;
     public CollisionShape2D EnemiesSpawnAreaCollision;
     public RectangleShape2D EnemiesSpawnAreaCollisionShape;
     public Player Player;
@@ -134,6 +135,7 @@ public partial class Main : Node2D
         MessageLevelCompleteSprite = GetNode<Node2D>("HUD/Message/MessageLevelComplete");
         MessageDeadSprite = GetNode<Node2D>("HUD/Message/MessageDead");
         StatusLabel = GetNode<Label>("HUD/Status");
+        EnemiesContainer = GetNode("Level/Enemies");
         
         // Initialize variables
         highScores = new List<HighScoreEntry>();
@@ -199,13 +201,24 @@ public partial class Main : Node2D
             if (!Player.IsDead())
             {
                 StatusLabel.Text =
-                    $"Level: {level}    Score: {score}    Enemies remaining: {enemiesInitialNumber - enemiesKilled}";
+                    $"Level: {level}    Score: {score}    Enemies remaining: {GetEnemiesLeftCount()}";
             }
         }
         else
         {
             HandleHighScoreNameInput();
         }
+    }
+
+    private int GetEnemiesLeftCount()
+    {
+        int aliveEnemies = 0;
+
+        foreach (Enemy enemy in EnemiesContainer.GetChildren())
+            if (!enemy.IsDead())
+                aliveEnemies++;
+
+        return aliveEnemies + enemiesLeft;
     }
 
     public override void _ExitTree()
@@ -459,7 +472,7 @@ public partial class Main : Node2D
     {
         enemiesKilled++;
 
-        if (enemiesInitialNumber - enemiesKilled == 0)
+        if (GetEnemiesLeftCount() == 0)
         {
             MessageSprite.Show();
             MessageLevelCompleteSprite.Show();
@@ -746,7 +759,7 @@ public partial class Main : Node2D
         score += 5 * level;
         enemiesKilled++;
 
-        if (enemiesInitialNumber - enemiesKilled == 0)
+        if (GetEnemiesLeftCount() == 0)
         {
             MessageSprite.Show();
             MessageLevelCompleteSprite.Show();
