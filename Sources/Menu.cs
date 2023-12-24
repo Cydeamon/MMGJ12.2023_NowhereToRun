@@ -111,7 +111,7 @@ public partial class Menu : Control
             {
                 GetNode<TextureButton>("MenuOptions/StartGame").GrabFocus();
             }
-            
+
             if (ActiveSubmenu != null)
             {
                 if (IsControllerMode())
@@ -205,6 +205,8 @@ public partial class Menu : Control
         submenu.Show();
         GetNode<Control>("MenuOptions").Hide();
         GetNode<Node2D>("InfoLabel").Hide();
+        GetNode<Node2D>("Logo").Hide();
+        GetNode<ColorRect>("Submenus/Backdrop").Show();
 
         if (menuOption.Name == "Options")
         {
