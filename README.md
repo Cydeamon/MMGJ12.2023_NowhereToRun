@@ -2,7 +2,7 @@
 
 A bunch of bandits are after you. All you have with you is a slow six-shooter. Dodge the bullets and put the bandits under their own bullets.
 
-Controls: Mouse + WASD.  
+Controls: Mouse + WASD or controller.  
 F11 - Toggle between fullscreen and windowed mode.
 
 [Project on itch.io](https://cydeamon.itch.io/nowhere-to-run)
