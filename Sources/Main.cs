@@ -166,7 +166,7 @@ public partial class Main : Node2D
         }
 
         GetViewport().GetWindow().Mode = 
-            GlobalGameState.Fullscreen ? Window.ModeEnum.ExclusiveFullscreen : Window.ModeEnum.Windowed;
+            GlobalGameState.GetFullscreen() ? Window.ModeEnum.ExclusiveFullscreen : Window.ModeEnum.Windowed;
 
         // Create image for BloodDrawSprite
         Image bloodDrawSpriteImage = Image.Create(
@@ -177,6 +177,10 @@ public partial class Main : Node2D
         );
 
         GetNode<Sprite2D>("Level/BloodDrawSprite").Texture = ImageTexture.CreateFromImage(bloodDrawSpriteImage);
+        
+        // Start menu music
+        MenuPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
+        MenuPlayer.Play();
     }
     public override void _Process(double delta)
     {
@@ -218,9 +222,9 @@ public partial class Main : Node2D
         using StreamWriter writer = new StreamWriter(filePath);
         
         writer.WriteLine("[SETTINGS]");
-        writer.WriteLine($"Fullscreen={GlobalGameState.Fullscreen}");
-        writer.WriteLine($"MusicVolume={GlobalGameState.MusicVolume}");
-        writer.WriteLine($"SoundsVolume={GlobalGameState.SoundsVolume}");
+        writer.WriteLine($"Fullscreen={GlobalGameState.GetFullscreen()}");
+        writer.WriteLine($"MusicVolume={GlobalGameState.GetMusicVolume()}");
+        writer.WriteLine($"SoundsVolume={GlobalGameState.GetSoundsVolume()}");
         writer.WriteLine();
         writer.WriteLine("[HIGHSCORES]");
 
@@ -236,7 +240,7 @@ public partial class Main : Node2D
         using StreamReader reader = new StreamReader(filePath);
 
         string sectionNamePattern = @"\[([A-Z_]+)\]";
-        string sectionParamPattern = @"([A-z_]+)=([Tt]rue|[Ff]alse|[0-9-]+)";
+        string sectionParamPattern = @"([A-z_]+)=([Tt]rue|[Ff]alse|[0-9-.,]+)";
 
         string line = "", currentSection = "", paramName = "", paramValue = "";
         while ((line = reader.ReadLine()) != null)
@@ -292,9 +296,9 @@ public partial class Main : Node2D
             {
                 switch (paramName)
                 {
-                    case "MusicVolume":  GlobalGameState.MusicVolume = int.Parse(paramValue); break;
-                    case "SoundsVolume": GlobalGameState.SoundsVolume = int.Parse(paramValue); break;
-                    case "Fullscreen":   GlobalGameState.Fullscreen = bool.Parse(paramValue); break;
+                    case "MusicVolume":  GlobalGameState.SetMusicVolume(float.Parse(paramValue)); break;
+                    case "SoundsVolume": GlobalGameState.SetSoundsVolume(float.Parse(paramValue)); break;
+                    case "Fullscreen":   GlobalGameState.SetFullscreen(bool.Parse(paramValue)); break;
                 }
             }
         }
@@ -447,7 +451,7 @@ public partial class Main : Node2D
     private void PlayShootSound()
     {
         SoundsPlayer.Stream = ShootSound;
-        SoundsPlayer.VolumeDb = GlobalGameState.SoundsVolume;
+        SoundsPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
         SoundsPlayer.Play();
     }
 
@@ -474,13 +478,13 @@ public partial class Main : Node2D
             else
             {
                 GameplayPlayer.PitchScale = 1f;
-                GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
+                GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
                 MenuPlayer.VolumeDb = -80;
             }
         }
         else
         {
-            MenuPlayer.VolumeDb = GlobalGameState.MusicVolume;
+            MenuPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
             GameplayPlayer.VolumeDb = -80;
         }
     }
@@ -579,7 +583,7 @@ public partial class Main : Node2D
             startButton.TextureHover = continueButtonPressed;
 
             GameplayPlayer.Stream = LevelStartMusic;
-            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
+            GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
             GameplayPlayer.Play();
 
             Player.StopBleeding();
@@ -600,7 +604,7 @@ public partial class Main : Node2D
                 ? Window.ModeEnum.Windowed
                 : Window.ModeEnum.ExclusiveFullscreen;
             
-            GlobalGameState.Fullscreen = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen;
+            GlobalGameState.SetFullscreen(GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen);
         }
     }
 
@@ -614,13 +618,13 @@ public partial class Main : Node2D
         else if (GameplayPlayer.Stream == LevelMusic1)
         {
             GameplayPlayer.Stream = LevelMusic2;
-            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
+            GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
             GameplayPlayer.Play();
         }
         else if (GameplayPlayer.Stream == LevelMusic2)
         {
             GameplayPlayer.Stream = LevelMusic1;
-            GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
+            GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
             GameplayPlayer.Play();
         }
     }
@@ -646,7 +650,7 @@ public partial class Main : Node2D
         if (!isGamePaused)
         {
             MessagesPlayer.Stream = ReadySound;
-            MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
+            MessagesPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
             MessagesPlayer.Play();
         }
 
@@ -672,7 +676,7 @@ public partial class Main : Node2D
                 if (!isGamePaused)
                 {
                     MessagesPlayer.Stream = GoSound;
-                    MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
+                    MessagesPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
                     MessagesPlayer.Play();
                 }
             }
@@ -697,7 +701,7 @@ public partial class Main : Node2D
         if (!isGamePaused)
         {
             MessagesPlayer.Stream = DeadSound;
-            MessagesPlayer.VolumeDb = GlobalGameState.SoundsVolume;
+            MessagesPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
             MessagesPlayer.Play();
         }
         
@@ -780,7 +784,7 @@ public partial class Main : Node2D
                 Player.SetDirection(Vector2.Up);
 
                 GameplayPlayer.Stream = LevelStartMusic;
-                GameplayPlayer.VolumeDb = GlobalGameState.MusicVolume;
+                GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
                 GameplayPlayer.Play();
             }
         }

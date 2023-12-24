@@ -169,7 +169,6 @@ flip_h = true
 
 [node name="MenuPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("12_2ghfv")
-autoplay = true
 
 [node name="MessagesPlayer" type="AudioStreamPlayer" parent="."]
 volume_db = -10.0

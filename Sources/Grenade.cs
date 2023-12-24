@@ -37,7 +37,7 @@ public partial class Grenade : StaticBody2D
     public override void _Process(double delta)
     {
         base._Process(delta);
-        explosionPlayer.VolumeDb = GlobalGameState.SoundsVolume;
+        explosionPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
         
         velocity = velocity.Lerp(Vector2.Zero, (float)(5 * delta));
         KinematicCollision2D collision = MoveAndCollide(velocity * (float)delta);

@@ -216,9 +216,9 @@ size_flags_vertical = 1
 theme_override_fonts/font = ExtResource("11_njolt")
 theme_override_styles/background = SubResource("StyleBoxFlat_6lalh")
 theme_override_styles/fill = SubResource("StyleBoxFlat_b54ly")
-min_value = -64.0
+min_value = -50.0
 max_value = 0.0
-step = 1.0
+step = 0.5
 
 [node name="SoundsVolumeLabel" type="Button" parent="Submenus/Options/GridContainer"]
 custom_minimum_size = Vector2(184, 0)
@@ -241,9 +241,9 @@ size_flags_vertical = 1
 theme_override_fonts/font = ExtResource("11_njolt")
 theme_override_styles/background = SubResource("StyleBoxFlat_bmbou")
 theme_override_styles/fill = SubResource("StyleBoxFlat_mnoqw")
-min_value = -64.0
+min_value = -50.0
 max_value = 0.0
-step = 1.0
+step = 0.5
 
 [node name="ToggleFullscreenLabel" type="Button" parent="Submenus/Options/GridContainer"]
 custom_minimum_size = Vector2(184, 0)

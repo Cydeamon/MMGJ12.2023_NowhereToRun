@@ -152,8 +152,8 @@ public partial class Menu : Control
 
     public void UpdateSettings()
     {
-        GetNode<ProgressBar>("Submenus/Options/GridContainer/MusicVolume").Value = GlobalGameState.MusicVolume;
-        GetNode<ProgressBar>("Submenus/Options/GridContainer/SoundsVolume").Value = GlobalGameState.SoundsVolume;
+        GetNode<ProgressBar>("Submenus/Options/GridContainer/MusicVolume").Value = GlobalGameState.GetMusicVolume();
+        GetNode<ProgressBar>("Submenus/Options/GridContainer/SoundsVolume").Value = GlobalGameState.GetSoundsVolume();
     }
 
     public void ActivateSubmenu()
@@ -221,12 +221,12 @@ public partial class Menu : Control
             ? Window.ModeEnum.Windowed
             : Window.ModeEnum.ExclusiveFullscreen;
 
-        GlobalGameState.Fullscreen = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen;
+        GlobalGameState.SetFullscreen(GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen);
     }
 
     private void OnVolumeSliderValueChanged()
     {
-        GlobalGameState.MusicVolume = (int)GetNode<ProgressBar>("Submenus/Options/GridContainer/MusicVolume").Value;
-        GlobalGameState.SoundsVolume = (int)GetNode<ProgressBar>("Submenus/Options/GridContainer/SoundsVolume").Value;
+        GlobalGameState.SetMusicVolume((float) GetNode<ProgressBar>("Submenus/Options/GridContainer/MusicVolume").Value);
+        GlobalGameState.SetSoundsVolume((float) GetNode<ProgressBar>("Submenus/Options/GridContainer/SoundsVolume").Value);
     }
 }
