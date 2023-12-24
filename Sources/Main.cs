@@ -364,9 +364,7 @@ public partial class Main : Node2D
                     UpdateHighScoresTable();
                     highScoreNameInput = false;
                     GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
-                    GameReset();
-                    Menu.Show();
-                    Menu.ActivateSubmenu("HighScores");
+                    GetNode<Button>("HUD/Message/MessageDead/Restart").GrabFocus();
                 }
             }
         }
@@ -751,6 +749,8 @@ public partial class Main : Node2D
             GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").GrabFocus();
             highScoreNameInput = true;
         }
+        else
+            GetNode<Button>("HUD/Message/MessageDead/Restart").GrabFocus();
     }
 
 
@@ -804,5 +804,12 @@ public partial class Main : Node2D
                     node.QueueFree();
             }
         }
+    }
+
+    private void RestartGame()
+    {
+        isGameStarted = false;
+        GameReset();
+        StartGame();
     }
 }

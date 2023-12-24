@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bfhb7ix8xm15l"]
+[gd_scene load_steps=26 format=3 uid="uid://bfhb7ix8xm15l"]
 
 [ext_resource type="Script" path="res://Sources/Main.cs" id="1_ndi6g"]
 [ext_resource type="PackedScene" uid="uid://do6ka7qtb5ycv" path="res://Menu.tscn" id="1_nwwtp"]
@@ -31,6 +31,34 @@ size = Vector2(150, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_15o62"]
 size = Vector2(191, 20)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0hv6j"]
+bg_color = Color(0.494118, 0.121569, 0.137255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.227451, 0.0509804, 0.0588235, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+expand_margin_left = 1.0
+expand_margin_right = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_56beb"]
+bg_color = Color(0.768627, 0.0941176, 0.121569, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.227451, 0.0509804, 0.0588235, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+expand_margin_left = 1.0
+expand_margin_right = 1.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fr261"]
 
@@ -220,6 +248,18 @@ texture = ExtResource("7_6kqek")
 visible = false
 texture = ExtResource("10_srpkn")
 
+[node name="Restart" type="Button" parent="HUD/Message/MessageDead"]
+offset_left = -32.0
+offset_top = 16.0
+offset_right = 29.0
+offset_bottom = 34.0
+theme_override_fonts/font = ExtResource("6_de1lf")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0hv6j")
+theme_override_styles/hover = SubResource("StyleBoxFlat_56beb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_56beb")
+theme_override_styles/focus = SubResource("StyleBoxFlat_56beb")
+text = "RESTART"
+
 [node name="Status" type="Label" parent="HUD"]
 offset_right = 384.0
 offset_bottom = 16.0
@@ -231,7 +271,7 @@ vertical_alignment = 1
 
 [node name="NewHighscoreBlock" type="Node2D" parent="HUD"]
 visible = false
-position = Vector2(1, 95)
+position = Vector2(1, 99)
 
 [node name="ColorRect2" type="ColorRect" parent="HUD/NewHighscoreBlock"]
 offset_left = 87.0
@@ -305,5 +345,6 @@ drag_and_drop_selection_enabled = false
 [connection signal="timeout" from="Level/LevelStartMessagesTimer" to="." method="CycleIntroMessages"]
 [connection signal="timeout" from="Level/LevelStartBeforeMessagesTimer" to="." method="ShowReadyMessage"]
 [connection signal="finished" from="GameplayPlayer" to="." method="OnGameplayMusicFinished"]
+[connection signal="pressed" from="HUD/Message/MessageDead/Restart" to="." method="RestartGame"]
 [connection signal="Exit" from="Menu" to="." method="Exit"]
 [connection signal="StartGame" from="Menu" to="." method="StartGame"]
