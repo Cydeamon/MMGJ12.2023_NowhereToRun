@@ -213,6 +213,7 @@ alignment = 2
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 size_flags_vertical = 1
+focus_mode = 1
 theme_override_fonts/font = ExtResource("11_njolt")
 theme_override_styles/background = SubResource("StyleBoxFlat_6lalh")
 theme_override_styles/fill = SubResource("StyleBoxFlat_b54ly")
@@ -238,6 +239,7 @@ alignment = 2
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 size_flags_vertical = 1
+focus_mode = 1
 theme_override_fonts/font = ExtResource("11_njolt")
 theme_override_styles/background = SubResource("StyleBoxFlat_bmbou")
 theme_override_styles/fill = SubResource("StyleBoxFlat_mnoqw")
@@ -377,5 +379,7 @@ text = "Theme: Enemies as weapons"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[connection signal="gui_input" from="Submenus/Options/GridContainer/MusicVolume" to="." method="OnProgressBarValueChangedWithMouse"]
+[connection signal="gui_input" from="Submenus/Options/GridContainer/SoundsVolume" to="." method="OnProgressBarValueChangedWithMouse"]
 [connection signal="button_down" from="Submenus/Options/GridContainer/ToggleFullscreenLabel" to="." method="ToggleFullscreen"]
 [connection signal="button_down" from="Submenus/Options/GridContainer/ToggleFullscreen" to="." method="ToggleFullscreen"]

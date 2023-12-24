@@ -236,4 +236,24 @@ public partial class Menu : Control
         GlobalGameState.SetMusicVolume((float) GetNode<ProgressBar>("Submenus/Options/GridContainer/MusicVolume").Value);
         GlobalGameState.SetSoundsVolume((float) GetNode<ProgressBar>("Submenus/Options/GridContainer/SoundsVolume").Value);
     }
+
+    private void OnProgressBarValueChangedWithMouse(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton mouseEvent)
+        {
+            if (mouseEvent.ButtonIndex == MouseButton.Left)
+            {
+                ProgressBar progressBar = GetViewport().GuiGetFocusOwner() as ProgressBar;
+
+                if (progressBar != null)
+                {
+                    float clickPositionPercentage = mouseEvent.Position.X / progressBar.GetRect().Size.X;
+                    progressBar.Value = clickPositionPercentage * (progressBar.MaxValue - progressBar.MinValue) + progressBar.MinValue;
+                    
+                    if (progressBar.Name == "MusicVolume" || progressBar.Name == "SoundsVolume")
+                        OnVolumeSliderValueChanged();
+                }
+            }
+        }
+    }
 }

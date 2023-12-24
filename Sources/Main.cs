@@ -222,7 +222,7 @@ public partial class Main : Node2D
     }
 
     public override void _ExitTree()
-    {
+    { 
         base._ExitTree();
         
         // Save settings
