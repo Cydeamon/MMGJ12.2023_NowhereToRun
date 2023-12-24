@@ -5,7 +5,7 @@ A bunch of bandits are after you. All you have with you is a slow six-shooter. D
 Controls: Mouse + WASD.  
 F11 - Toggle between fullscreen and windowed mode.
 
-[Project on github](https://github.com/Cydeamon/MMGJ12.2023_NowhereToRun)  
+[Project on itch.io]([https://github.com/Cydeamon/MMGJ12.2023_NowhereToRun](https://cydeamon.itch.io/nowhere-to-run))  
 
 \----------------------------------------------------
 
