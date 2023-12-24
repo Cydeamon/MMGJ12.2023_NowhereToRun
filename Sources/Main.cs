@@ -786,6 +786,9 @@ public partial class Main : Node2D
                 GameplayPlayer.Stream = LevelStartMusic;
                 GameplayPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
                 GameplayPlayer.Play();
+
+                foreach (Node node in GetNode<Node2D>("Level/Projectiles").GetChildren())
+                    node.QueueFree();
             }
         }
     }
