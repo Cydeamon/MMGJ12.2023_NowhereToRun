@@ -24,6 +24,8 @@ public partial class Menu : Control
     /******************************** Properties *******************************/
 
     private Control ActiveSubmenu = null;
+    private ulong progressbarStepPerTime = 200;
+    private ulong progressbarNextStepTime = 0;
 
 
     /***************************************************************************/
@@ -126,22 +128,27 @@ public partial class Menu : Control
         // Handle options values change in "Options" menu
         if (ActiveSubmenu?.Name == "Options")
         {
-            if (Input.IsActionJustPressed("ui_left") || Input.IsActionJustPressed("ui_right"))
+            if (Input.IsActionPressed("ui_left") || Input.IsActionPressed("ui_right"))
             {
                 if (GetViewport().GuiGetFocusOwner() is Button option)
                 {
-                    Control control =
-                        GetNode<Control>(
-                            "Submenus/Options/GridContainer/" + option.Name.ToString().Replace("Label", ""));
-
-                    if (control is ProgressBar progressBar)
+                    if (Time.GetTicksMsec() > progressbarNextStepTime)
                     {
-                        if (Input.IsActionJustPressed("ui_left"))
-                            progressBar.Value -= progressBar.Step;
-                        else
-                            progressBar.Value += progressBar.Step;
+                        progressbarNextStepTime = Time.GetTicksMsec() + progressbarStepPerTime;
+                        
+                        Control control =
+                            GetNode<Control>(
+                                "Submenus/Options/GridContainer/" + option.Name.ToString().Replace("Label", ""));
 
-                        OnVolumeSliderValueChanged();
+                        if (control is ProgressBar progressBar)
+                        {
+                            if (Input.IsActionPressed("ui_left"))
+                                progressBar.Value -= progressBar.Step;
+                            else
+                                progressBar.Value += progressBar.Step;
+
+                            OnVolumeSliderValueChanged();
+                        }
                     }
 
                     option.GrabFocus();
