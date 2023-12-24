@@ -183,7 +183,7 @@ public partial class Main : Node2D
         Delta = delta;
         HandleMusic();
         checkControlMethod();
-
+        
         if (!highScoreNameInput)
         {
             HandlePauseToggle();

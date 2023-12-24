@@ -92,6 +92,10 @@ public partial class Enemy : Character
     public override void _Process(double delta)
     {
         base._Process(delta);
+        
+        if (IsGamePaused() && Type == EnemyType.PISTOL)
+            determineNextShotTime();
+        
         pickAnimation();
         handleAI();
         handleMovement();
