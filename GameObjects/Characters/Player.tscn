@@ -46,11 +46,11 @@ shape = SubResource("RectangleShape2D_5x3y0")
 debug_color = Color(0.807843, 0, 0.0235294, 0.419608)
 
 [node name="ProjectileSpawnPoint" type="Node2D" parent="."]
-position = Vector2(4, -4)
+position = Vector2(7, -5)
 
 [node name="ShotDirection" type="Node2D" parent="ProjectileSpawnPoint"]
 y_sort_enabled = true
-position = Vector2(1, 0)
+position = Vector2(-1, 1)
 
 [node name="ColorRect" type="ColorRect" parent="ProjectileSpawnPoint/ShotDirection"]
 offset_left = 6.0

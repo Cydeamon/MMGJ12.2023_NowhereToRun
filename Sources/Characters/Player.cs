@@ -50,7 +50,7 @@ public partial class Player : Character
             shotDirectionView.Show();
 
             if (IsControllerMode())
-                shotDirectionView.LookAt(projectileSpawnPoint.GlobalPosition - GetControllerAimDirection());
+                shotDirectionView.LookAt(projectileSpawnPoint.GlobalPosition - (GetControllerAimDirection() * 100));
             else
                 shotDirectionView.LookAt(GetGlobalMousePosition());
         }
@@ -63,7 +63,10 @@ public partial class Player : Character
             Input.GetActionStrength("controller_aim_up") - Input.GetActionStrength("controller_aim_down")
         );
         
-        return controllerDirection.Normalized();
+        if (controllerDirection == Vector2.Zero)
+            return Vector2.Up;
+        
+        return controllerDirection.Normalized() ;
     }
 
     private void HandleShooting()
@@ -79,7 +82,7 @@ public partial class Player : Character
                 if (GetControllerAimDirection() != Vector2.Zero)
                     projectile.Direction = -GetControllerAimDirection();
                 else
-                    projectile.Direction = Vector2.Left;
+                    projectile.Direction = Vector2.Down;
             }
             else
                 projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
