@@ -302,8 +302,7 @@ public partial class Main : Node2D
 
     private void checkControlMethod()
     {
-        if (Input.IsActionJustPressed("controller_aim_down") || Input.IsActionJustPressed("controller_aim_up") ||
-            Input.IsActionJustPressed("controller_aim_left") || Input.IsActionJustPressed("controller_aim_right"))
+        if (Input.IsActionJustPressed("joy_action"))
         {
             isControllerMode = true;
             Input.MouseMode = Input.MouseModeEnum.Hidden;

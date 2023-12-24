@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using Godot.Collections;
+using static NowhereToRun.Sources.Main;
 
 public partial class Menu : Control
 {
@@ -109,6 +110,15 @@ public partial class Menu : Control
             if (GetViewport().GuiGetFocusOwner() == null && ActiveSubmenu == null)
             {
                 GetNode<TextureButton>("MenuOptions/StartGame").GrabFocus();
+            }
+            
+            if (ActiveSubmenu != null)
+            {
+                if (IsControllerMode())
+                {
+                    if (ActiveSubmenu.Name != "Options")
+                        GetNode<TextureButton>("Submenus/" + ActiveSubmenu.Name + "/GoBack").GrabFocus();
+                }
             }
         }
 
