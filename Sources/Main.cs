@@ -108,7 +108,7 @@ public partial class Main : Node2D
     public static bool IsGamePaused() => isGamePaused;
     public static bool IsControllerMode() => isControllerMode;
     public static LevelIntroStatus GetLevelIntroStatus() => levelIntroStatus;
-    
+
 
     /***************************************************************************/
     /********************************* Methods *********************************/
@@ -136,10 +136,10 @@ public partial class Main : Node2D
         MessageDeadSprite = GetNode<Node2D>("HUD/Message/MessageDead");
         StatusLabel = GetNode<Label>("HUD/Status");
         EnemiesContainer = GetNode("Level/Enemies");
-        
+
         // Initialize variables
         highScores = new List<HighScoreEntry>();
-        
+
         // Read settings
         ReadINI();
         Menu.UpdateSettings();
@@ -167,7 +167,7 @@ public partial class Main : Node2D
             GetViewport().GetWindow().MoveToCenter();
         }
 
-        GetViewport().GetWindow().Mode = 
+        GetViewport().GetWindow().Mode =
             GlobalGameState.GetFullscreen() ? Window.ModeEnum.ExclusiveFullscreen : Window.ModeEnum.Windowed;
 
         // Create image for BloodDrawSprite
@@ -179,17 +179,18 @@ public partial class Main : Node2D
         );
 
         GetNode<Sprite2D>("Level/BloodDrawSprite").Texture = ImageTexture.CreateFromImage(bloodDrawSpriteImage);
-        
+
         // Start menu music
         MenuPlayer.VolumeDb = GlobalGameState.GetMusicVolume();
         MenuPlayer.Play();
     }
+
     public override void _Process(double delta)
     {
         Delta = delta;
         HandleMusic();
         checkControlMethod();
-        
+
         if (!highScoreNameInput)
         {
             HandlePauseToggle();
@@ -202,6 +203,13 @@ public partial class Main : Node2D
             {
                 StatusLabel.Text =
                     $"Level: {level}    Score: {score}    Enemies remaining: {GetEnemiesLeftCount()}";
+
+                if (!MessageLevelCompleteSprite.Visible && GetEnemiesLeftCount() == 0)
+                {
+                    MessageSprite.Show();
+                    MessageLevelCompleteSprite.Show();
+                    GetNode<Timer>("Level/EndLevelTimer").Start();
+                }
             }
         }
         else
@@ -222,9 +230,9 @@ public partial class Main : Node2D
     }
 
     public override void _ExitTree()
-    { 
+    {
         base._ExitTree();
-        
+
         // Save settings
         WriteINI();
     }
@@ -233,7 +241,7 @@ public partial class Main : Node2D
     {
         string filePath = "NowhereToRun.ini";
         using StreamWriter writer = new StreamWriter(filePath);
-        
+
         writer.WriteLine("[SETTINGS]");
         writer.WriteLine($"Fullscreen={GlobalGameState.GetFullscreen()}");
         writer.WriteLine($"MusicVolume={GlobalGameState.GetMusicVolume()}");
@@ -243,7 +251,7 @@ public partial class Main : Node2D
 
         for (int i = 0; i < highScores.Count; i++)
             writer.WriteLine($"{highScores[i].Name}={highScores[i].Score}");
-        
+
         writer.Close();
     }
 
@@ -309,9 +317,15 @@ public partial class Main : Node2D
             {
                 switch (paramName)
                 {
-                    case "MusicVolume":  GlobalGameState.SetMusicVolume(float.Parse(paramValue)); break;
-                    case "SoundsVolume": GlobalGameState.SetSoundsVolume(float.Parse(paramValue)); break;
-                    case "Fullscreen":   GlobalGameState.SetFullscreen(bool.Parse(paramValue)); break;
+                    case "MusicVolume":
+                        GlobalGameState.SetMusicVolume(float.Parse(paramValue));
+                        break;
+                    case "SoundsVolume":
+                        GlobalGameState.SetSoundsVolume(float.Parse(paramValue));
+                        break;
+                    case "Fullscreen":
+                        GlobalGameState.SetFullscreen(bool.Parse(paramValue));
+                        break;
                 }
             }
         }
@@ -324,7 +338,7 @@ public partial class Main : Node2D
             isControllerMode = true;
             Input.MouseMode = Input.MouseModeEnum.Hidden;
         }
-        
+
         if (Input.IsActionJustPressed("ui_up") || Input.IsActionJustPressed("ui_down") ||
             Input.IsActionJustPressed("ui_left") || Input.IsActionJustPressed("ui_right"))
         {
@@ -345,8 +359,6 @@ public partial class Main : Node2D
         {
             highScoreNameInput = false;
             GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
-            GameReset();
-            Menu.Show();
         }
         else
         {
@@ -469,13 +481,6 @@ public partial class Main : Node2D
     private void OnEnemyRunAway()
     {
         enemiesKilled++;
-
-        if (GetEnemiesLeftCount() == 0)
-        {
-            MessageSprite.Show();
-            MessageLevelCompleteSprite.Show();
-            GetNode<Timer>("Level/EndLevelTimer").Start();
-        }
     }
 
     private void HandleMusic()
@@ -614,7 +619,7 @@ public partial class Main : Node2D
             GetViewport().GetWindow().Mode = GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen
                 ? Window.ModeEnum.Windowed
                 : Window.ModeEnum.ExclusiveFullscreen;
-            
+
             GlobalGameState.SetFullscreen(GetViewport().GetWindow().Mode == Window.ModeEnum.ExclusiveFullscreen);
         }
     }
@@ -715,7 +720,7 @@ public partial class Main : Node2D
             MessagesPlayer.VolumeDb = GlobalGameState.GetSoundsVolume();
             MessagesPlayer.Play();
         }
-        
+
         // Cancel "Level complete"
         if (levelOutroStatus == LevelOutroStatus.FINISHED)
         {
@@ -758,13 +763,6 @@ public partial class Main : Node2D
     {
         score += 5 * level;
         enemiesKilled++;
-
-        if (GetEnemiesLeftCount() == 0)
-        {
-            MessageSprite.Show();
-            MessageLevelCompleteSprite.Show();
-            GetNode<Timer>("Level/EndLevelTimer").Start();
-        }
     }
 
     private void OnEndLevelTimer()
