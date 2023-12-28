@@ -85,7 +85,7 @@ public partial class Player : Character
                     projectile.Direction = Vector2.Down;
             }
             else
-                projectile.Direction = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+                projectile.Direction = (GetGlobalMousePosition() - projectileSpawnPoint.GlobalPosition).Normalized();
             
             projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
             GetNode("/root/Main/Level/Projectiles").AddChild(projectile);

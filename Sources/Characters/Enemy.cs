@@ -198,7 +198,7 @@ public partial class Enemy : Character
                                 Projectile projectile =
                                     (Projectile)GD.Load<PackedScene>("res://GameObjects/Projectile.tscn").Instantiate();
                                 projectile.Shooter = this;
-                                projectile.Direction = (Player.GlobalPosition - GlobalPosition).Normalized();
+                                projectile.Direction = (Player.GlobalPosition - projectileSpawnPoint.GlobalPosition).Normalized();
                                 projectile.GlobalPosition = projectileSpawnPoint.GlobalPosition;
                                 GetNode("/root/Main/Level/Projectiles").AddChild(projectile);
                                 EmitSignal("EnemyShot");

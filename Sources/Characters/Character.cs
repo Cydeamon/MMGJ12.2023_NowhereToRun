@@ -28,6 +28,7 @@ public abstract partial class Character : CharacterBody2D
     /******************************* Properties ********************************/
 
     [Export] public int Speed = 50;
+    [Export] public bool Invincible = false;
     protected double delta;
     protected bool isDead = false;
     protected Vector2 moveDirection = Vector2.Zero;
@@ -176,7 +177,7 @@ public abstract partial class Character : CharacterBody2D
 
     public void BulletHit(Vector2 direction)
     {
-        if (!isDead)
+        if (!isDead && !Invincible)
         {
             die();
             Velocity = direction * (random.Next(275) + 25);
@@ -186,7 +187,7 @@ public abstract partial class Character : CharacterBody2D
     
     public void BlastHit(Vector2 explosionPosition)
     {
-        if (!isDead)
+        if (!isDead && !Invincible)
         {
             die();
             Velocity = (GlobalPosition - explosionPosition).Normalized() * (random.Next(275) + 25);

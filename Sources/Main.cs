@@ -56,8 +56,8 @@ public partial class Main : Node2D
     private int highScoreNameLetter = 0;
     private string highScoreName = "";
     private int score = 0;
-    private int enemiesInitialNumber = 10;
-    private int enemiesLeft = 10;
+    private int enemiesInitialNumber = 20;
+    private int enemiesLeft = 20;
     private int enemiesKilled = 0;
     private int level = 1;
     [Export] private int enemySpawnTimeMin = 250;
@@ -362,8 +362,6 @@ public partial class Main : Node2D
         }
         else
         {
-            GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").GrabFocus();
-
             if (Input.IsActionJustPressed("ui_accept"))
             {
                 string name = GetNode<LineEdit>("HUD/NewHighscoreBlock/LineEdit").Text;
@@ -538,8 +536,8 @@ public partial class Main : Node2D
         if (resetScore)
         {
             score = 0;
-            enemiesInitialNumber = 10;
-            enemiesLeft = 10;
+            enemiesInitialNumber = 20;
+            enemiesLeft = 20;
             enemiesKilled = 0;
             level = 1;
         }
@@ -806,6 +804,9 @@ public partial class Main : Node2D
 
     private void RestartGame()
     {
+        highScoreNameInput = false;
+        GetNode<Node2D>("HUD/NewHighscoreBlock").Hide();
+        
         isGameStarted = false;
         GameReset();
         StartGame();
