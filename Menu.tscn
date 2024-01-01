@@ -302,8 +302,7 @@ A bunch of bandits are after you. All you have with you is a slow six-shooter. D
 Controls: Mouse + WASD or controller. 
 F11 - Toggle between fullscreen and windowed mode.
 
--- About My Monthly Game Jam
-This is my personal game jam that takes place within one month. I come up with idea and try to implement the game within a month."
+"
 fit_content = true
 
 [node name="GoBack" type="TextureButton" parent="Submenus/About"]
@@ -358,21 +357,10 @@ texture_focused = ExtResource("14_0ky1y")
 
 [node name="InfoLabel" type="Node2D" parent="."]
 
-[node name="Label" type="Label" parent="InfoLabel"]
-offset_top = 182.0
-offset_right = 384.0
-offset_bottom = 198.0
-theme_override_colors/font_color = Color(0.494118, 0.121569, 0.137255, 1)
-theme_override_fonts/font = ExtResource("11_njolt")
-text = "12.2023 | MMGJ
-"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Label2" type="Label" parent="InfoLabel"]
-offset_top = 195.0
+offset_top = 185.0
 offset_right = 384.0
-offset_bottom = 211.0
+offset_bottom = 201.0
 theme_override_colors/font_color = Color(0.494118, 0.121569, 0.137255, 1)
 theme_override_fonts/font = ExtResource("11_njolt")
 text = "Theme: Enemies as weapons"
