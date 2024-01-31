@@ -7,20 +7,6 @@ F11 - Toggle between fullscreen and windowed mode.
 
 [Project on itch.io](https://cydeamon.itch.io/nowhere-to-run)
 
-\----------------------------------------------------
-
-**ABOUT MMGJ**
-
-My Monthly Game Jam - This is my personal game jam that takes place within one month, where only participant is me.  
-I come up with an idea for a game (sometimes using generators like https://letsmakeagame.net/game-jam-theme-generator/) and try to implement and release the game within a month  
-The game should be a complete finished game. That is - menus, music, gameplay.
-
-Goals of MMGJ:  
-
-*   Practice. Regular practice in drawing, in modeling, in interesting engines, in interesting development languages, in music, in gamemade in principle
-*   Actually making games instead of forever "trying"
-*   Moving towards an independent developer   
-
 \--------------------------------------------------
 
 **CREDITS**
